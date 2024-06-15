@@ -1,0 +1,80 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Match version tags like v1.0.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Extract tag name
+      id: extract_tag
+      run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
+
+    - name: Generate timestamp
+      id: timestamp
+      run: echo "::set-output name=time::$(date -u +%Y%m%dT%H%M%SZ)"
+
+    - name: Extract Git hash
+      id: githash
+      run: echo "::set-output name=hash::$(git rev-parse --short HEAD)"
+
+    - name: Define image tag
+      id: define_image_tag
+      run: echo "::set-output name=image_tag::registry.cn-heyuan.aliyuncs.com/methanal/scenespark:${{ steps.extract_tag.outputs.tag }}-${{ steps.timestamp.outputs.time }}-${{ steps.githash.outputs.hash }}"
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.define_image_tag.outputs.image_tag }}
+
+    - name: Post Lark notification
+      if: success()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        fields: repo,commit,author,ref,workflow,job,took
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: Send Lark Notification
+      if: success()
+      env:
+        IMAGE_TAG: ${{ steps.define_image_tag.outputs.image_tag }}
+        LARK_WEBHOOK_URL: ${{ secrets.LARK_WEBHOOK_URL }}
+      run: |
+        curl -X POST -H 'Content-Type: application/json' -d '{
+          "msg_type": "text",
+          "content": {
+            "text": "Build and Deploy successful for tag: ${{ steps.extract_tag.outputs.tag }}. Image: ${IMAGE_TAG}"
+          }
+        }' ${LARK_WEBHOOK_URL}
+
+    #- name: Update .env file on server
+    #  env:
+    #    SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    #    SERVER_USER: ${{ secrets.SERVER_USER }}
+    #    SERVER_HOST: ${{ secrets.SERVER_HOST }}
+    #  run: |
+    #    ssh -o StrictHostKeyChecking=no -i $SSH_PRIVATE_KEY $SERVER_USER@$SERVER_HOST "
+    #      echo 'NEW_IMAGE_TAG=${{ github.ref_name }}-${{ steps.githash.outputs.hash }}' > /path/to/.env
+    #      docker-compose -f /path/to/docker-compose.yml down
+    #      docker-compose -f /path/to/docker-compose.yml up -d
+    #    "
