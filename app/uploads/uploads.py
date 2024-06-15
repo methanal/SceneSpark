@@ -16,7 +16,6 @@ async def upload_files(files: List[UploadFile] = File(...), text: str = Form(...
 
     output_dir = Path("app/static/videos")
     output_dir.mkdir(parents=True, exist_ok=True)
-    import pdb; pdb.set_trace()  # noqa
 
     for file in files:
         file_path = output_dir / file.filename
