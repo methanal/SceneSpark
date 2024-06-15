@@ -117,15 +117,21 @@ pillow==10.3.0
 proglog==0.1.10
     # via moviepy
 pydantic==2.7.4
-    # via fastapi
+    # via
+    #   fastapi
+    #   pydantic-settings
 pydantic-core==2.18.4
     # via pydantic
+pydantic-settings==2.3.3
+    # via -r requirements.in
 pydub==0.25.1
     # via autocut-sub
 pygments==2.18.0
     # via rich
 python-dotenv==1.0.1
-    # via uvicorn
+    # via
+    #   pydantic-settings
+    #   uvicorn
 python-multipart==0.0.9
     # via fastapi
 pyyaml==6.0.1
