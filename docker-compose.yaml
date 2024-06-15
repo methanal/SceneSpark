@@ -2,11 +2,10 @@ name: scenespark
 version: '3.1'
 services:
   server:
-    image: registry.cn-heyuan.aliyuncs.com/methanal/scenespark:202406152132
-    restart: always
-    container_name: scenespark-server-1
-    networks:
-      - scenespark-network
+    image: registry.cn-heyuan.aliyuncs.com/methanal/scenespark:202406152253
+    volumes:
+      # - ./app/static:/app/app/static
+      - ./:/app/
     deploy:
       replicas: 1
       resources:
@@ -19,11 +18,17 @@ services:
         #       count: 1
         #       capabilities: [gpu]
     # runtime: nvidia
+    restart: always
+    container_name: scenespark-server-1
+    platform: linux/amd64
+    networks:
+      - scenespark-network
 
   nginx:
     image: nginx:latest
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./app/static:/static
     depends_on:
       - server
     ports:
@@ -31,6 +36,7 @@ services:
     networks:
       - scenespark-network
     container_name: scenespark-nginx-1
+    platform: linux/amd64
 
 networks:
   scenespark-network:
