@@ -1,8 +1,8 @@
-name: p2t-dev
+name: scenespark
 version: '3.1'
 services:
   server:
-    image: registry.cn-heyuan.aliyuncs.com/methanal/scenespark:202406151851
+    image: registry.cn-heyuan.aliyuncs.com/methanal/scenespark:202406152132
     restart: always
     container_name: scenespark-server-1
     networks:
