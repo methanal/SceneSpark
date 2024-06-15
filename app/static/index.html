@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>视频上传与处理</title>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .section {
+            margin: 10px;
+            width: 80%;
+        }
+        #videoPreview {
+            display: none;
+            max-width: 100%;  /* 限制视频最大宽度 */
+            max-height: 500px; /* 限制视频最大高度 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="section">
+            <label for="fileInput">选择视频文件（多选）：</label>
+            <input type="file" id="fileInput" multiple>
+        </div>
+        <div class="section">
+            <label for="textInput">文本编辑区：</label>
+            <textarea id="textInput" rows="4" cols="50"></textarea>
+        </div>
+        <div class="section">
+            <button id="uploadButton" onclick="uploadFiles()">上传</button>
+        </div>
+        <div class="section">
+            <video id="videoPreview" controls controlsList="nodownload nofullscreen"></video>
+        </div>
+    </div>
+
+    <script>
+        async function uploadFiles() {
+            const files = document.getElementById('fileInput').files;
+            const text = document.getElementById('textInput').value;
+            if (files.length === 0 || !text) {
+                alert('请先选择视频文件并填写文本内容');
+                return;
+            }
+
+            const formData = new FormData();
+            for (const file of files) {
+                formData.append('files', file);
+            }
+            formData.append('text', text);
+
+            const response = await fetch('/api/v1/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const videoPreview = document.getElementById('videoPreview');
+                videoPreview.src = data.video_url;
+                videoPreview.style.display = 'block';
+            } else {
+                alert('上传失败');
+            }
+        }
+    </script>
+</body>
+</html>
