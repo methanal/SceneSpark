@@ -61,15 +61,7 @@ async def upload_files(
     "/api/v1/extract/{request_id}",
     response_class=ORJSONResponse,
 )
-async def extract(request_id: str):
-    # TODO
-    """
-    遍历 request_id 目录，找到 video 文件
-        查找，确认 videos 都有对应的 videos_cut。否则循环等待。
-
-    concatenate_videoclips 合并 videos_cut。
-    抽取单视频函数。
-    """
+async def extract(background_tasks: BackgroundTasks, request_id: str):
     session_path = Path(f"app/static/videos/{request_id}")
 
     if not (cut_files := all_cut_ready(session_path)):
@@ -77,15 +69,23 @@ async def extract(request_id: str):
             content={"message": "cut still not ready yet"}, status_code=202
         )
 
-    merge_file = merge_videos(cut_files, session_path)
+    merge_filename = session_path / "merge.mp4"
+    background_tasks.add_task(merge_videos, cut_files, session_path, merge_filename)
+    # merge_file = merge_videos(cut_files, session_path)
 
-    auto_spark_clips(
-        path=merge_file,
+    background_tasks.add_task(
+        auto_spark_clips,
+        path=merge_filename,
         prompt=prompts[request_id],
         result_filename=session_path / "final.mp4",
     )
+    # auto_spark_clips(
+    #     path=merge_file,
+    #     prompt=prompts[request_id],
+    #     result_filename=session_path / "final.mp4",
+    # )
 
-    return {"message": "Extract successfully"}
+    return {"message": "Extract job submitted"}
 
 
 @router.get("/api/v1/download/{request_id}/{file_name}")

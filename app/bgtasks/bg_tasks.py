@@ -14,7 +14,7 @@ def auto_spark_clips(path: Path, prompt: str, result_filename: Optional[Path] = 
     subs, srts = transcribe_srt(args, path)
 
     _srts = pick_srts(srts, prompt)
-    idx = [int(s) for s in _srts.split('\n') if s]
+    idx = [int(s) - 1 for s in _srts.split('\n') if s]
 
     _subs = [subs[i] for i in idx]
     concate_clips(args, path, _subs, result_filename)
