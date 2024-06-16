@@ -93,13 +93,18 @@
                 return;
             }
 
-            const response = await fetch(`/api/v1/extract/${requestId}`);
-            if (!response.ok) {
-                alert('抽取失败，请重试');
-                return;
-            }
+            try {
+                const response = await fetch(`/api/v1/extract/${requestId}`);
+                const data = await response.json();
 
-            alert('内容抽取成功，请查看结果');
+                if (!response.ok) {
+                    alert(`抽取失败，请重试: ${data.message}`);
+                } else {
+                    alert(`${data.message}`);
+                }
+            } catch (error) {
+                alert('请求失败，请重试');
+            }
         }
 
         async function viewResult() {

@@ -81,7 +81,9 @@ def concate_clips(args, path: Path, subs, result_filename: Optional[Path] = None
 
     if not result_filename:
         result_filename = path.with_name(f"{path.stem}_cut.mp4")
-    final_clip.write_videofile(result_filename, audio_codec="aac", bitrate=args.bitrate)
+    final_clip.write_videofile(
+        result_filename.as_posix(), audio_codec="aac", bitrate=args.bitrate
+    )
 
     media.close()
     logging.info(f"Saved media to {result_filename}")  # noqa: G004
@@ -91,7 +93,7 @@ def all_cut_ready(path: Path):
     """检查目录下，每个 {name}.{suffix}，都有对应的 {name}_cut.mp4 文件"""
     ret_files = []
     for file in path.iterdir():
-        if is_video(file):
+        if is_video(file) and '_cut' not in file.stem:
             cut_file = file.with_name(f"{file.stem}_cut.mp4")
             if not cut_file.exists():
                 return []
@@ -101,7 +103,7 @@ def all_cut_ready(path: Path):
     return ret_files
 
 
-def merge_videos(cut_files: List[Path], session_path: Path):
+def merge_videos(cut_files: List[Path], session_path: Path, merge_filename: Path):
     videos = []
     for file in cut_files:
         videos.append(editor.VideoFileClip(file.as_posix()))
@@ -111,9 +113,9 @@ def merge_videos(cut_files: List[Path], session_path: Path):
 
     merged = editor.concatenate_videoclips(videos)
 
-    fn = session_path.with_name("merge.mp4")
     args = gen_args(inputs=[])
-    merged.write_videofile(fn, audio_codec="aac", bitrate=args.bitrate)
+    merged.write_videofile(
+        merge_filename.as_posix(), audio_codec="aac", bitrate=args.bitrate
+    )
 
-    logging.info(f"Saved merged video to {fn}")  # noqa: G004
-    return fn
+    logging.info(f"Saved merged video to {merge_filename}")  # noqa: G004
