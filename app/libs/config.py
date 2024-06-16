@@ -12,6 +12,8 @@ class Settings(BaseSettings):
 
     SENTRY_DSN: str = ''
     SENTRY_APM_SAMPLE_RATE: Optional[float] = 1
+    OPENAI_API_KEY: str = ''
+    OPENAI_BASE_URL: str = ''
 
     LOGGING: Dict[str, Any] = {
         'version': 1,
