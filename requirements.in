@@ -1,6 +1,5 @@
 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-autocut-sub==1.0.2
 fastapi==0.111.0
 pydantic-settings==2.3.3
 sentry-sdk[fastapi]==2.5.1
@@ -10,3 +9,6 @@ uvicorn==0.30.1
 lz4==4.3.3
 httpx==0.27.0
 uvicorn[standard]==0.30.1
+
+# autocut-sub==1.0.2
+git+https://github.com/methanal/autocut.git@libs#egg=autocut-sub
