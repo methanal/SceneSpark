@@ -1,5 +1,4 @@
 import logging
-import shutil
 import uuid
 from pathlib import Path
 from typing import List
@@ -21,9 +20,11 @@ from fastapi import (
 from fastapi.responses import ORJSONResponse, StreamingResponse
 
 from app.bgtasks.bg_tasks import auto_spark_clips
+from app.libs.autocut_wrapper import all_cut_ready, merge_videos
 
 LOGGER = logging.getLogger(__name__)
 router = APIRouter()
+prompts = {}
 
 
 @router.post(
@@ -39,6 +40,8 @@ async def upload_files(
     LOGGER.debug(f"prompt:{prompt}")  # noqa: G004
 
     request_id = str(uuid.uuid4())
+    prompts[request_id] = prompt
+
     output_dir = Path(f"app/static/videos/{request_id}")
     output_dir.mkdir(parents=True, exist_ok=True)
     LOGGER.debug(f"vidoes path:{output_dir}")  # noqa: G004
@@ -67,13 +70,20 @@ async def extract(request_id: str):
     concatenate_videoclips 合并 videos_cut。
     抽取单视频函数。
     """
+    session_path = Path(f"app/static/videos/{request_id}")
 
-    from_path = Path("app/static/videos/5.mp4")
-    to_folder = Path(f"app/static/videos/{request_id}")
-    to_path = to_folder / "cut.mp4"
+    if not (cut_files := all_cut_ready(session_path)):
+        return ORJSONResponse(
+            content={"message": "cut still not ready yet"}, status_code=202
+        )
 
-    to_folder.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(from_path, to_path)
+    merge_file = merge_videos(cut_files, session_path)
+
+    auto_spark_clips(
+        path=merge_file,
+        prompt=prompts[request_id],
+        result_filename=session_path / "final.mp4",
+    )
 
     return {"message": "Extract successfully"}
 

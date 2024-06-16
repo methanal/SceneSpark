@@ -1,7 +1,7 @@
 import argparse
 import logging
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import srt
 from autocut.transcribe import Transcribe
@@ -50,7 +50,7 @@ def transcribe_srt(args, path: Path):
     return subs, srts
 
 
-def concate_clips(args, path: Path, subs):
+def concate_clips(args, path: Path, subs, result_filename: Optional[Path] = None):
     segments: List[Dict] = []
 
     subs.sort(key=lambda x: x.start)
@@ -79,9 +79,41 @@ def concate_clips(args, path: Path, subs):
     final_clip = final_clip.without_audio().set_audio(aud)
     final_clip = final_clip.fx(editor.afx.audio_normalize)
 
-    # an alternative to birate is use crf, e.g. ffmpeg_params=['-crf', '18']
-    output_fn = 'cut.mp4'  # FIXME
-    final_clip.write_videofile(output_fn, audio_codec="aac", bitrate=args.bitrate)
+    if not result_filename:
+        result_filename = path.with_name(f"{path.stem}_cut.mp4")
+    final_clip.write_videofile(result_filename, audio_codec="aac", bitrate=args.bitrate)
 
     media.close()
-    logging.info(f"Saved media to {output_fn}")  # noqa: G004
+    logging.info(f"Saved media to {result_filename}")  # noqa: G004
+
+
+def all_cut_ready(path: Path):
+    """检查目录下，每个 {name}.{suffix}，都有对应的 {name}_cut.mp4 文件"""
+    ret_files = []
+    for file in path.iterdir():
+        if is_video(file):
+            cut_file = file.with_name(f"{file.stem}_cut.mp4")
+            if not cut_file.exists():
+                return []
+
+            ret_files.append(cut_file)
+
+    return ret_files
+
+
+def merge_videos(cut_files: List[Path], session_path: Path):
+    videos = []
+    for file in cut_files:
+        videos.append(editor.VideoFileClip(file.as_posix()))
+
+    dur = sum([v.duration for v in videos])
+    logging.info(f"Merging into a video with {dur / 60:.1f} min length")  # noqa: G004
+
+    merged = editor.concatenate_videoclips(videos)
+
+    fn = session_path.with_name("merge.mp4")
+    args = gen_args(inputs=[])
+    merged.write_videofile(fn, audio_codec="aac", bitrate=args.bitrate)
+
+    logging.info(f"Saved merged video to {fn}")  # noqa: G004
+    return fn
