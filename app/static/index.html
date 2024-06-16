@@ -37,13 +37,15 @@
         </div>
         <div class="section">
             <button id="uploadButton" onclick="uploadFiles()">上传</button>
-            <!-- TODO: upload 和 抽取 分成两个 button -->
-            <!-- TODO: 生成 form 的 UUID， upload 时创建文件夹，抽取时通过 UUID 定位文件夹. -->
+            <button id="extractButton" onclick="extractContent()">抽取</button>
+            <button id="viewResultButton" onclick="viewResult()">查看结果</button>
         </div>
         <div class="section" id="videoContainer"></div>
     </div>
 
     <script>
+        let requestId = null;
+
         async function uploadFiles() {
             const files = document.getElementById('fileInput').files;
             const text = document.getElementById('textInput').value;
@@ -64,21 +66,43 @@
             });
 
             if (response.ok) {
-                const data = await response.json();
-                const videoContainer = document.getElementById('videoContainer');
-                const videoUrl = data.video_url;
-
-                videoContainer.innerHTML = `
-                    <video controls autoplay name="media">
-                        <source src="${videoUrl}" type="video/mp4">
-                    </source>video>
-                `;
-
-                const videoPreview = videoContainer.querySelector('video');
-                videoPreview.style.display = 'block';
+                const result = await response.json();
+                requestId = result.request_id;
+                alert(`Files uploaded successfully. Request ID: ${requestId}`);
             } else {
                 alert('上传失败');
             }
+        }
+
+        async function extractContent() {
+            if (!requestId) {
+                alert('请先上传文件');
+                return;
+            }
+
+            const response = await fetch(`/api/v1/extract/${requestId}`);
+            if (!response.ok) {
+                alert('抽取失败，请重试');
+                return;
+            }
+
+            alert('内容抽取成功，请查看结果');
+        }
+
+        async function viewResult() {
+            if (!requestId) {
+                alert('请先上传并抽取内容');
+                return;
+            }
+
+            const videoUrl = `/static/videos/${requestId}/cut.mp4`;
+            const videoContainer = document.getElementById('videoContainer');
+
+            videoContainer.innerHTML = `
+                <video controls autoplay name="media" style="display: block;">
+                    <source src="${videoUrl}" type="video/mp4">
+                </video>
+            `;
         }
     </script>
 </body>
