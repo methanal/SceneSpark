@@ -6,6 +6,8 @@
 #
 --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
+aiofiles==23.2.1
+    # via -r requirements.in
 annotated-types==0.7.0
     # via pydantic
 anyio==4.4.0
