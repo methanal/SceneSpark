@@ -13,7 +13,7 @@ anyio==4.4.0
     #   httpx
     #   starlette
     #   watchfiles
-autocut-sub==1.0.2
+autocut-sub @ git+https://github.com/methanal/autocut.git@libs
     # via -r requirements.in
 certifi==2024.6.2
     # via
