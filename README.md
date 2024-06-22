@@ -34,7 +34,7 @@ SceneSpark is a tool designed to automate the extraction and generation of key s
 
 ## Acknowledgements
 
-This repository is inspired by and borrows some code from [autocut](https://github.com/mli/autocut). Special thanks to the autocut team.
+This repository is inspired by and borrows some code from [mli/autocut](https://github.com/mli/autocut). Special thanks to the autocut team.
 
 ## Getting Started
 
