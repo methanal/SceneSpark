@@ -10,8 +10,8 @@
 
 - [Introduction](#introduction)
 - [Features](#features)
-- [Getting Started](#gettings-started)
-- [API Documentation](#api_documentation)
+- [Getting Started](#getting-started)
+- [API Documentation](#api-documentation)
 - [RoadMap](#roadmap)
 - [FAQ](#faq)
 - [Maintainers](#maintainers)
@@ -25,11 +25,11 @@ SceneSpark is a tool designed to automate the extraction and generation of key s
 
 ## Features
 
-- [x] **Subtitle Clipper**: Extracts key scenes based on subtitle analysis.
-- [] **(Coming Soon)LLM CV Clipper**: Uses large language models for computer vision-based clipping.
-- [] **(Coming Soon)OCR Clipper**: Extracts scenes based on text recognition from video frames.
-- [] **(Coming Soon)RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
-- [] **(Coming Soon)User-Friendly Frontend**: A sleek and intuitive interface for interacting with the tool.
+[x] **Subtitle Clipper**: Extracts key scenes based on subtitle analysis.
+[] **(Coming Soon)LLM CV Clipper**: Uses large language models for computer vision-based clipping.
+[] **(Coming Soon)OCR Clipper**: Extracts scenes based on text recognition from video frames.
+[] **(Coming Soon)RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
+[] **(Coming Soon)User-Friendly Frontend**: A sleek and intuitive interface for interacting with the tool.
 
 ## Getting Started
 
@@ -67,7 +67,7 @@ TBD
 
 ## Maintainers
 
-[@methanal](https://github.com/methanal).
+[@methanal](https://github.com/methanal)
 
 ## Contributing
 
