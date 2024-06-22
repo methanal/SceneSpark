@@ -2,23 +2,40 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from app.libs.autocut_wrapper import concate_clips, gen_args, transcribe_srt
-from app.libs.openai_wrapper import pick_srts
+from clippers.subtitle_clipper import SubtitleClipper
 
 LOGGER = logging.getLogger(__name__)
 
 
-def auto_spark_clips(path: Path, prompt: str, result_filename: Optional[Path] = None):
-    args = gen_args(inputs=[path])
+def bg_subtitle_clipper(
+    video_path: Path, prompt: str, result_filename: Optional[Path] = None
+):
+    args = SubtitleClipper.gen_args()
 
-    subs, srts = transcribe_srt(args, path)
+    srt_clipper = SubtitleClipper(autocut_args=args)
+    srt_clipper.extract_clips(video_path, prompt)
 
-    _srts = pick_srts(srts, prompt)
-    idx = [int(s) - 1 for s in _srts.split('\n') if s]
+    # concate_clips(args, path, _subs, result_filename)  # Skip concatenation of clips.
 
-    _subs = [subs[i] for i in idx]
-    concate_clips(args, path, _subs, result_filename)
 
+def bg_llm_vision_clipper(
+    path: Path, prompt: str, result_filename: Optional[Path] = None
+):
     """
-    video clips 按 时间线 拼接, concatenate_videoclips
-    write_videofile，重命名 video<i>_clips.mp4"""
+    Extracts key frames from a video,
+    identifies important frames using LLM Vision,
+    and returns the corresponding video segments and JSON descriptions.
+    """
+    ...
+
+
+def bg_keyframe_clipper(
+    path: Path, prompt: str, result_filename: Optional[Path] = None
+):
+    """
+    References:
+    -----------
+    - https://github.com/joelibaceta/video-keyframe-detector
+    - https://arxiv.org/abs/2401.04962
+    """
+    ...
