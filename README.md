@@ -25,28 +25,54 @@ SceneSpark is a tool designed to automate the extraction and generation of key s
 
 ## Features
 
-- [x] 🔜 **Subtitle Clipper**: Extracts key scenes based on subtitle analysis.
-- 🚧 **(Coming Soon)LLM CV Clipper**: Uses large language models for computer vision-based clipping.
-- 🚧 **(Coming Soon)OCR Clipper**: Extracts scenes based on text recognition from video frames.
-- 🚧 **(Coming Soon)RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
-- 🚧 **(Coming Soon)User-Friendly Frontend**: A sleek and intuitive interface for interacting with the tool.
+- 🔜 **Subtitle Clipper**: Extracts key scenes based on subtitle analysis.
+- 🚧 **(Coming Soon) LLM CV Clipper**: Uses large language models for computer vision-based clipping.
+- 🚧 **(Coming Soon) OCR Clipper**: Extracts scenes based on text recognition from video frames.
+- 🚧 **(Coming Soon) RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
+- 🚧 **(Coming Soon) Microservices Architecture**: Frontend and backend services are decoupled and deployed using Docker Compose for seamless integration and scalability.
+- 🚧 (Coming Soon) On-Premise Deployment: Easily deploy on your own physical servers or data centers for enhanced security and privacy.
 
 ## Getting Started
 
-### Prerequisites
 ### Installation
 
-1. Clone the repository:
+1. Clone the repository
 
 ```sh
+$ git clone https://github.com/methanal/SceneSpark.git
 ```
 
-2. Build and run the Docker container:
+2. Prepare a Virtual Environment
 
 ```sh
+pyenv virtuanlenv scenespark
+pyenv activate scenespark
+```
+
+3. Install the requirements
+
+```sh
+pip install --no-cache-dir -r requirements.txt
+```
+
+### Launch
+
+1. Create and Fill in the .env File
+
+```
+OPENAI_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+OPENAI_BASE_URL="https://xx.xx.xx/api/v1/xx/"
+```
+
+2. Launch ./run.sh
+
+```sh
+./run.sh
 ```
 
 ### Usage
+
+Navigate to [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser. You will see a simple, minimalistic page. Enjoy exploring!
 
 ## API Documentation
 
@@ -59,7 +85,10 @@ API details will be provided soon. Stay tuned for updates.
 - [] **LLM CV Clipper**
 - [] **OCR Clipper**
 - [] **RAG**
-- [] **Independent and Sleek Frontend**
+- [] **Microservices Architecture**
+    - Frontend built with React
+    - docker-compose.yml
+- [] **On-Premise Deployment**
 
 ## FAQ
 
