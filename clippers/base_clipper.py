@@ -33,7 +33,7 @@ class IClipper(ABC):
 
 
 class BaseClipper(IClipper):
-    def __init__(self, autocut_args):
+    def __init__(self):
         super().__init__()
 
     def extract_clips(self, video_path: Path, prompt: str) -> List[Dict]:
