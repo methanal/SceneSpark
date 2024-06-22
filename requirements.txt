@@ -110,12 +110,15 @@ numpy==1.26.4
     #   moviepy
     #   numba
     #   openai-whisper
+    #   opencv-python
 openai==1.34.0
     # via -r requirements.in
 openai-whisper==20231117
     # via autocut-sub
 opencc-python-reimplemented==0.1.7
     # via autocut-sub
+opencv-python==4.10.0.84
+    # via -r requirements.in
 orjson==3.10.5
     # via
     #   -r requirements.in
@@ -123,7 +126,9 @@ orjson==3.10.5
 parameterized==0.9.0
     # via autocut-sub
 pillow==10.3.0
-    # via imageio
+    # via
+    #   -r requirements.in
+    #   imageio
 proglog==0.1.10
     # via moviepy
 pydantic==2.7.4
