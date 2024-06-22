@@ -2,16 +2,15 @@ import logging
 import logging.config
 
 from fastapi import FastAPI
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.gzip import GZipMiddleware
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from app.__version__ import __version__
 from app.internal import healthz
 from app.libs.config import settings
 from app.uploads import uploads
-
 from utils.sentry import sentry_sdk  # noqa: F401
 
 logging.config.dictConfig(settings.LOGGING)
