@@ -32,6 +32,10 @@ SceneSpark is a tool designed to automate the extraction and generation of key s
 - 🚧 **(Coming Soon) Microservices Architecture**: Frontend and backend services are decoupled and deployed using Docker Compose for seamless integration and scalability.
 - 🚧 (Coming Soon) On-Premise Deployment: Easily deploy on your own physical servers or data centers for enhanced security and privacy.
 
+## Acknowledgements
+
+This repository is inspired by and borrows some code from [autocut](https://github.com/mli/autocut). Special thanks to the autocut team.
+
 ## Getting Started
 
 ### Installation
