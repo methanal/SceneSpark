@@ -4,6 +4,7 @@ TODO: Refactor and merge this file into subtitle_clipper.py.
 This file is planned to be refactored and incorporated into subtitle_clipper.py
 to improve modularity and maintainability.
 """
+
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional
