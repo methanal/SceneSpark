@@ -25,11 +25,11 @@ SceneSpark is a tool designed to automate the extraction and generation of key s
 
 ## Features
 
-- ☑ **Subtitle Clipper**: Extracts key scenes based on subtitle analysis.
-- ☐ **(Coming Soon)LLM CV Clipper**: Uses large language models for computer vision-based clipping.
-- [] **(Coming Soon)OCR Clipper**: Extracts scenes based on text recognition from video frames.
-- [] **(Coming Soon)RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
-- [] **(Coming Soon)User-Friendly Frontend**: A sleek and intuitive interface for interacting with the tool.
+- [x] **Subtitle Clipper**: Extracts key scenes based on subtitle analysis.
+- 🚧 **(Coming Soon)LLM CV Clipper**: Uses large language models for computer vision-based clipping.
+- 🚧 **(Coming Soon)OCR Clipper**: Extracts scenes based on text recognition from video frames.
+- 🚧 **(Coming Soon)RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
+- 🚧 **(Coming Soon)User-Friendly Frontend**: A sleek and intuitive interface for interacting with the tool.
 
 ## Getting Started
 
