@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from pydantic_settings import BaseSettings
 
@@ -12,8 +12,23 @@ class Settings(BaseSettings):
 
     SENTRY_DSN: str = ''
     SENTRY_APM_SAMPLE_RATE: Optional[float] = 1
+
     OPENAI_API_KEY: str = ''
     OPENAI_BASE_URL: str = ''
+    OPENAI_TEMPERATURE: float = 0.4
+
+    def get_llm_provider_config(self, provider: str) -> Dict[str, Union[str, float]]:
+        if provider == 'openai':
+            return {
+                'type': 'remote',
+                'model': 'gpt-4o',
+                'provider': 'openai',
+                'api_key': self.OPENAI_API_KEY,
+                'temperature': self.OPENAI_TEMPERATURE,
+                # 'http_proxy': self.OPENAI_BASE_URL,  # ullm support base_url?
+            }
+        else:
+            raise ValueError(f"Unsupported provider: {provider}")
 
     LOGGING: Dict[str, Any] = {
         'version': 1,
@@ -44,6 +59,11 @@ class Settings(BaseSettings):
                 'propagate': False,
             },
             'utils': {
+                'handlers': ['stdout'],
+                'level': 'DEBUG',
+                'propagate': False,
+            },
+            'clippers': {
                 'handlers': ['stdout'],
                 'level': 'DEBUG',
                 'propagate': False,
