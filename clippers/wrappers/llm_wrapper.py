@@ -35,21 +35,11 @@ def llm_pick_imgs(
 ):
     content: List[Dict[str, Union[str, Dict]]] = [{"type": "text", "text": prompt}]
 
-    for img in image_list:
-        content.append(
-            {
-                "type": "image",
-                "path": img,
-            }
-        )
+    if image_list:
+        content.extend({"type": "image", "path": img} for img in image_list)
 
-    for data in data_list:
-        content.append(
-            {
-                "type": "image",
-                "data": data,
-            }
-        )
+    if data_list:
+        content.extend({"type": "image", "data": data} for data in image_list)
 
     messages = [{"role": "user", "content": content}]
     response = llm_client.chat(messages)
