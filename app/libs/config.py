@@ -25,7 +25,6 @@ class Settings(BaseSettings):
                 'provider': 'openai',
                 'api_key': self.OPENAI_API_KEY,
                 'temperature': self.OPENAI_TEMPERATURE,
-                # 'http_proxy': self.OPENAI_BASE_URL,  # ullm support base_url?
             }
         else:
             raise ValueError(f"Unsupported provider: {provider}")

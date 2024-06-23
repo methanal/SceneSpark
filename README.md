@@ -95,10 +95,10 @@ API details will be provided soon. Stay tuned for updates.
     - ~~Single image recognition~~
     - ~~Multiple image recognition~~
     - ~~Consecutive image sequence recognition~~
-    - Read video and sample frames
-    - Send a small subset of sampled frames to the LLM for recognition.
+    - ~~Read video and sample frames~~
+    - ~~send a small subset of sampled frames to the LLM for recognition.~~
+    - Compress sampled frames to minimize token usage and submit more frames per request.
     - Finalize the LLM prompt to extract key frames from consecutive frames, returning a JSON object. The JSON should include relevant data extracted from the frames.
-    - Compress sampled frames to reduce token consumption.
 - [] **OCR Clipper**
 - [] **RAG**
 - [] **Microservices Architecture**
