@@ -10,7 +10,7 @@ from autocut.utils import is_video, load_audio
 from moviepy import editor
 
 from clippers.base_clipper import BaseClipper
-from clippers.wrappers.openai_wrapper import initialize_openai_client, llm_pick_srts
+from clippers.wrappers.llm_wrapper import initialize_llm_client, llm_pick_srts
 
 LOGGER = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class SubtitleClipper(BaseClipper):
     def __init__(self, autocut_args):
         super().__init__()
         self.autocut_args = autocut_args
-        self.llm_client = initialize_openai_client()
+        self.llm_client = initialize_llm_client()
 
     def extract_clips(self, video_path: Path, prompt: str) -> List[Dict]:
         self.autocut_args.inputs = [video_path]
