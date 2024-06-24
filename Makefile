@@ -1,13 +1,9 @@
 init:
 	pre-commit install
 
-migrate:
-	echo "start migrating (without any backup)."
-	alembic upgrade heads
-	echo "done migrating."
-
-update-requirements:
-	pip-compile --output-file requirements.txt requirements.in
+dev:
+	docker compose -f docker-compose.dev.yaml --env-file .docker-compose.dev.env down
+	docker compose -f docker-compose.dev.yaml --env-file .docker-compose.dev.env up -d
 
 clean:
 	rm -rf .pytest_cache/
@@ -24,6 +20,4 @@ clean:
 	rm -rf *.egg-info
 
 test: clean
-	export REDIS_HOST="127.0.0.1"; \
-	export REDIS_PORT="6379"; \
-	pytest -rs -vvvv --durations 10 --disable-pytest-warnings --cov-report term-missing --cov-report html:coverage_html --cov=app/ .
+	echo "testing..."

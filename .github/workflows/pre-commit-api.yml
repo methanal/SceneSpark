@@ -1,13 +1,22 @@
-name: pre-commit
+name: Pre-commit for API
 
 on:
   pull_request:
+    paths:
+      - 'api/**'
   push:
+    paths:
+      - 'api/**'
     branches: [main]
 
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: api
+
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v3
