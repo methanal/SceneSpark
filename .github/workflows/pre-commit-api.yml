@@ -7,7 +7,9 @@ on:
   push:
     paths:
       - 'api/**'
-    branches: [main]
+    branches:
+      - main
+      - ci
   workflow_dispatch:
 
 jobs:
@@ -23,8 +25,12 @@ jobs:
       with:
         python-version: '3.9'
 
+    - name: Install pre-commit
+      run: |
+        pip install pre-commit
+
     - name: Run pre-commit
-      working-directory: ./api
-      uses: pre-commit/action@v3.0.0
-      with:
-        extra_args: --show-diff-on-failure --color=always --all-files
+      run: |
+        cd api
+        ls -l
+        pre-commit run --show-diff-on-failure --color=always --all-files
