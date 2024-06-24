@@ -1,8 +1,8 @@
 <h1 align="center">SceneSpark</h1>
 <p align="center">Automatically extract and generate key scenes from videos, creating impactful and concise highlights.</p>
 <h4 align="center">
-    <a href="https://github.com/methanal/scenespark/actions/workflows/pre-commit.yml" target="_blank">
-        <img src="https://shields.io/github/actions/workflow/status/methanal/scenespark/pre-commit.yml?label=pre-commit" alt="Pre-commit status">
+    <a href="https://github.com/methanal/scenespark/actions/workflows/pre-commit-api.yml" target="_blank">
+        <img src="https://shields.io/github/actions/workflow/status/methanal/scenespark/pre-commit-api.yml?label=pre-commit-api" alt="Pre-commit status">
     </a>
 </h4>
 
