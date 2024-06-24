@@ -164,4 +164,4 @@ cython_debug/
 *.mp4
 .DS_Store
 */.DS_Store
-test*.png
+*/test*.png

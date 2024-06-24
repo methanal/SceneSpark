@@ -1,8 +1,8 @@
 <h1 align="center">SceneSpark</h1>
 <p align="center">Automatically extract and generate key scenes from videos, creating impactful and concise highlights.</p>
 <h4 align="center">
-    <a href="https://github.com/methanal/scenespark/actions/workflows/pre-commit.yml" target="_blank">
-        <img src="https://shields.io/github/actions/workflow/status/methanal/scenespark/pre-commit.yml?label=pre-commit" alt="Pre-commit status">
+    <a href="https://github.com/methanal/scenespark/actions/workflows/pre-commit-api.yml" target="_blank">
+        <img src="https://shields.io/github/actions/workflow/status/methanal/scenespark/pre-commit-api.yml?label=pre-commit" alt="Pre-commit status">
     </a>
 </h4>
 
@@ -10,7 +10,6 @@
 
 - [Introduction](#introduction)
 - [Features](#features)
-- [Acknowledgements](#acknowledgements)
 - [Getting Started](#getting-started)
 - [API Documentation](#api-documentation)
 - [RoadMap](#roadmap)
@@ -22,7 +21,7 @@
 
 ## Introduction
 
-SceneSpark is a tool designed to automate the extraction and generation of key scenes from videos. It leverages advanced algorithms to create impactful and concise highlights, making it easier to share and review important moments in any video.
+SceneSpark backend API.
 
 ## Features
 
@@ -32,7 +31,6 @@ SceneSpark is a tool designed to automate the extraction and generation of key s
 - 🚧 **(Coming Soon) RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
 - 🚧 **(Coming Soon) Microservices Architecture**: Frontend and backend services are decoupled and deployed using Docker Compose for seamless integration and scalability.
 - 🚧 (Coming Soon) On-Premise Deployment: Easily deploy on your own physical servers or data centers for enhanced security and privacy.
-- 🚧 (Coming Soon) GPU accelerated
 
 ## Acknowledgements
 
@@ -58,6 +56,7 @@ pyenv activate scenespark
 3. Install the requirements
 
 ```sh
+cd api/
 pip install --no-cache-dir -r requirements.txt
 ```
 
@@ -78,7 +77,7 @@ OPENAI_BASE_URL="https://xx.xx.xx/api/v1/xx/"
 
 ### Usage
 
-Navigate to [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
+~~Navigate to [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser. You will see a simple, minimalistic page. Enjoy exploring!~~
 
 ## API Documentation
 
@@ -101,14 +100,12 @@ API details will be provided soon. Stay tuned for updates.
     - ~~send a small subset of sampled frames to the LLM for recognition.~~
     - Compress sampled frames to minimize token usage and submit more frames per request.
     - Finalize the LLM prompt to extract key frames from consecutive frames, returning a JSON object. The JSON should include relevant data extracted from the frames.
-    - Tags extraction: https://github.com/PaddlePaddle/PaddleVideo/tree/develop/applications/VideoTag
 - [] **OCR Clipper**
 - [] **RAG**
 - [] **Microservices Architecture**
     - Frontend built with React
     - docker-compose.yml
 - [] **On-Premise Deployment**
-- [] **GPU accelerated**
 
 ## FAQ
 
