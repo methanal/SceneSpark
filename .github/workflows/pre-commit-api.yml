@@ -32,4 +32,5 @@ jobs:
     - name: Run pre-commit
       run: |
         cd api
+        ls -l
         pre-commit run --show-diff-on-failure --color=always --all-files
