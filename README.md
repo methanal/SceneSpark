@@ -27,12 +27,12 @@ SceneSpark is a tool designed to automate the extraction and generation of key s
 ## Features
 
 - 🔜 **Subtitle Clipper**: Extracts key scenes based on subtitle analysis.
-- 🚧 **(Coming Soon) LLM CV Clipper**: Uses large language models for computer vision-based clipping.
+- 🔜 **(Coming Soon) LLM CV Clipper**: Uses large language models for computer vision-based clipping.
 - 🚧 **(Coming Soon) OCR Clipper**: Extracts scenes based on text recognition from video frames.
 - 🚧 **(Coming Soon) RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
 - 🚧 **(Coming Soon) Microservices Architecture**: Frontend and backend services are decoupled and deployed using Docker Compose for seamless integration and scalability.
-- 🚧 (Coming Soon) On-Premise Deployment: Easily deploy on your own physical servers or data centers for enhanced security and privacy.
-- 🚧 (Coming Soon) GPU accelerated
+- 🔜 **(Coming Soon) On-Premise Deployment**: Easily deploy on your own physical servers or data centers for enhanced security and privacy.
+- 🚧 **(Coming Soon) GPU accelerated**
 
 ## Acknowledgements
 
@@ -87,18 +87,11 @@ API details will be provided soon. Stay tuned for updates.
 ## Roadmap
 
 - [x] **Subtitle Clipper**
-    - ~~subtitle clipper~~
-    - Refactor the LLM prompt: The LLM should return a JSON object that includes subtitle indices and extracts. Each extract should contain tags and a description.
     - Implement the /api/v1/clips/subtitle_clipper/{request\_id} API endpoint to retrieve results for a specific request_id. The response should be a JSON object that includes the start and end times of the clip, the relative path where the clip is stored, and the clip’s tags and description.
     - Refactor the frontend, remove the “Extract” and “View Results” buttons, using AJAX to dynamically fetch results instead.
     - Update the frontend, load video files of clips within a list component, displaying their associated tags and descriptions.
     - Refactor the API and OpenAPI documentation to include Request and Response schemas.
 - [] **LLM CV Clipper**
-    - ~~Single image recognition~~
-    - ~~Multiple image recognition~~
-    - ~~Consecutive image sequence recognition~~
-    - ~~Read video and sample frames~~
-    - ~~send a small subset of sampled frames to the LLM for recognition.~~
     - Compress sampled frames to minimize token usage and submit more frames per request.
     - Finalize the LLM prompt to extract key frames from consecutive frames, returning a JSON object. The JSON should include relevant data extracted from the frames.
     - Tags extraction: https://github.com/PaddlePaddle/PaddleVideo/tree/develop/applications/VideoTag
