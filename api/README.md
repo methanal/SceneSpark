@@ -26,11 +26,11 @@ SceneSpark backend API.
 ## Features
 
 - 🔜 **Subtitle Clipper**: Extracts key scenes based on subtitle analysis.
-- 🚧 **(Coming Soon) LLM CV Clipper**: Uses large language models for computer vision-based clipping.
+- 🔜  **(Coming Soon) LLM CV Clipper**: Uses large language models for computer vision-based clipping.
 - 🚧 **(Coming Soon) OCR Clipper**: Extracts scenes based on text recognition from video frames.
 - 🚧 **(Coming Soon) RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
-- 🚧 **(Coming Soon) Microservices Architecture**: Frontend and backend services are decoupled and deployed using Docker Compose for seamless integration and scalability.
-- 🚧 (Coming Soon) On-Premise Deployment: Easily deploy on your own physical servers or data centers for enhanced security and privacy.
+- 🔜  **(Coming Soon) Microservices Architecture**: Frontend and backend services are decoupled and deployed using Docker Compose for seamless integration and scalability.
+- 🔜  (Coming Soon) On-Premise Deployment: Easily deploy on your own physical servers or data centers for enhanced security and privacy.
 
 ## Acknowledgements
 
