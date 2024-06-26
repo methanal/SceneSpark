@@ -1,22 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import base64
+
 # import io
 import logging
-import time
 import sys
+import time
 from pathlib import Path
 from typing import Dict, List
 
 import cv2
 import orjson
+
 # from PIL import Image
 
 parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir))
 
 from clippers.base_clipper import BaseClipper  # noqa: E402
-from clippers.wrappers.llm_wrapper import initialize_llm_client, llm_pick_imgs  # noqa: E402
+
+# isort: off
+from clippers.wrappers.llm_wrapper import (  # noqa: E402
+    initialize_llm_client,
+    llm_pick_imgs,
+)
+
+# isort: on
 
 LOGGER = logging.getLogger(__name__)
 
@@ -56,7 +65,9 @@ class LLMVisionClipper(BaseClipper):
         return list(dict())  # TODO
 
     @staticmethod
-    def sample_frames(video_path: Path, interval: float = 5.0, save_image: bool = False) -> List[str]:
+    def sample_frames(
+        video_path: Path, interval: float = 5.0, save_image: bool = False
+    ) -> List[str]:
         def _show_encoded_size(buffered_jpeg, encoded_string):
             _jpeg = len(buffered_jpeg.getvalue())
             _e = len(encoded_string)
@@ -98,7 +109,9 @@ class LLMVisionClipper(BaseClipper):
             #             f.write(buffered_jpeg.getvalue())
 
             if frame_count % interval_frames == 0:
-                ret, _buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+                ret, _buffer = cv2.imencode(
+                    '.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85]
+                )
                 if not ret:
                     continue
 
