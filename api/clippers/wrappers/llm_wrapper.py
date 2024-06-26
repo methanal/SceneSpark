@@ -39,7 +39,7 @@ def llm_pick_imgs(
         content.extend({"type": "image", "path": img} for img in image_list)
 
     if data_list:
-        content.extend({"type": "image", "data": data} for data in image_list)
+        content.extend({"type": "image", "data": data} for data in data_list)
 
     messages = [{"role": "user", "content": content}]
     response = llm_client.chat(messages)

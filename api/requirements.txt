@@ -141,9 +141,7 @@ parameterized==0.9.0
 peewee==3.17.5
     # via ullm
 pillow==10.3.0
-    # via
-    #   -r requirements.in
-    #   imageio
+    # via imageio
 proglog==0.1.10
     # via moviepy
 pydantic==2.7.4
