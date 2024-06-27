@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import logging
 from pprint import pprint
 from typing import Dict, List, Optional, Union
 
 import orjson
+from loguru import logger
 from ullm import LanguageModel
 
 from app.libs.config import settings
-
-LOGGER = logging.getLogger(__name__)
 
 
 def initialize_llm_client(llm_provider: str = 'openai'):
@@ -45,14 +43,16 @@ def llm_pick_imgs(
     response = llm_client.chat(messages)
 
     usage = orjson.loads(response.original_result)['usage']
-    LOGGER.warning(f"LLM usage: {usage}")  # noqa: G004
+    logger.warning(f"LLM usage: {usage}")  # noqa: G004
 
     return response.content
 
 
 if __name__ == "__main__":
-    prompt = "这几张图片描述了什么故事？"
-    llm_client = initialize_llm_client()
+    from prompt_text import PROMPT_IMGS_SUMMARY
 
-    content = llm_pick_imgs(llm_client, prompt, image_list=['test1.png', 'test2.png'])
+    llm_client = initialize_llm_client()
+    content = llm_pick_imgs(
+        llm_client, PROMPT_IMGS_SUMMARY, image_list=['test1.png', 'test2.png']
+    )
     pprint(content)
