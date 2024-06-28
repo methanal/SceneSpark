@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Union
+from typing import Dict, Optional, Union
 
 from pydantic_settings import BaseSettings
 
@@ -28,47 +28,6 @@ class Settings(BaseSettings):
             }
         else:
             raise ValueError(f"Unsupported provider: {provider}")
-
-    LOGGING: Dict[str, Any] = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            'default': {
-                '()': 'logging.Formatter',
-                'fmt': '[{levelname:1.1s} {asctime} {module}:{funcName}:{lineno}] {message}',  # noqa: E501
-                'style': '{',
-            },
-        },
-        'handlers': {
-            'stdout': {
-                'class': 'logging.StreamHandler',
-                'level': 'DEBUG',
-                'formatter': 'default',
-            },
-        },
-        'loggers': {
-            'SceneSpark': {
-                'handlers': ['stdout'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
-            'app': {
-                'handlers': ['stdout'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
-            'utils': {
-                'handlers': ['stdout'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
-            'clippers': {
-                'handlers': ['stdout'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
-        },
-    }
 
 
 settings = Settings()
