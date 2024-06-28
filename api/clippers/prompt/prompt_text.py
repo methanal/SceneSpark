@@ -32,7 +32,7 @@ PROMPT_PICK_IMG_RETURN_JSON = """
 最后仅返回给我 JSON 格式的数据，格式和示例如下：
 {
   "picked": [
-    {"index": 2, "tags": ["情侣","不治之症","医院"], "description": "一名男子发现女子吐血，可能女子还有医院疾病"}
+    {"index": 2, "tags": ["情侣","不治之症","医院"], "description": "一名男子发现女子吐血，女子可能有遗传疾病"}
     {"index": 6, "tags": ["下毒","奸笑","医生"], "description": "一名医生在奸笑，说毒是他下的。"}
   ]
 }

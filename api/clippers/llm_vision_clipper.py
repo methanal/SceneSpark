@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# import base64
 
 import sys
-import time
 from pathlib import Path
 from typing import Dict, List
 
@@ -31,25 +29,19 @@ class LLMVisionClipper(BaseClipper):
         self.llm_client = initialize_llm_client()
 
     def extract_clips(self, video_path: Path, prompt: str) -> List[Dict]:
-        start_time_sample = time.monotonic()
+        sample_interval = 2.0  # seconds
         encode_frames = LLMVisionClipper.sample_frames(
-            video_path, interval=5.0, save_image=True
-        )
-        end_time_sample = time.monotonic()
-        logger.debug(
-            f"Sample Elapsed: {end_time_sample - start_time_sample}s"  # noqa: G004
+            video_path, interval=sample_interval, save_image=True
         )
 
         _imgs_json = llm_pick_imgs(self.llm_client, prompt, data_list=encode_frames)
-        end_time_llm = time.monotonic()
-        logger.debug(f"LLM Elapsed: {end_time_llm - end_time_sample}s")  # noqa: G004
 
-        # FIXME: The following code has not been debugged
         try:
             imgs_info = orjson.loads(_imgs_json)
         except orjson.JSONDecodeError as e:
             logger.warning("llm doesn't return JSON, it returns: %s", str(e))
 
+        # FIXME: The following code has not been debugged
         raise NotImplementedError('Just Here')
         selected_frames = [int(s["index"]) - 1 for s in imgs_info]
         clip_metadata_list = self._store_clips(video_path, selected_frames)
