@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     OPENAI_BASE_URL: str = ''
     OPENAI_TEMPERATURE: float = 0.4
 
+    BITRATE: str = '10m'
+
     def get_llm_provider_config(self, provider: str) -> Dict[str, Union[str, float]]:
         if provider == 'openai':
             return {

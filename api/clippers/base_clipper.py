@@ -2,6 +2,10 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, List
 
+from moviepy import editor
+
+from app.libs.config import settings
+
 
 class IClipper(ABC):
     """
@@ -38,3 +42,24 @@ class BaseClipper(IClipper):
 
     def extract_clips(self, video_path: Path, prompt: str) -> List[Dict]:
         raise NotImplementedError("BaseClipper.extract_clips not implementted")
+
+    def store_clips(self, video_path: Path, segments: List[Dict]) -> None:
+        media = editor.VideoFileClip(video_path.as_posix())
+
+        for s in segments:
+            start = s['start']
+            end = s['end']
+
+            clip = media.subclip(start, end)
+            aud = clip.audio.set_fps(44100)
+            clip: editor.VideoClip = clip.without_audio().set_audio(aud)  # type: ignore[no-redef]
+            clip: editor.VideoClip = clip.fx(editor.afx.audio_normalize)  # type: ignore[no-redef]
+
+            _name = video_path.with_name(f"{video_path.stem}_{start}.mp4")
+            clip.write_videofile(
+                _name.as_posix(), audio_codec="aac", bitrate=settings.BITRATE
+            )
+
+            s['file_path'] = _name
+
+        media.close()
