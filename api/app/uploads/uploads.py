@@ -1,9 +1,8 @@
-import logging
-import uuid
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import aiofiles  # type: ignore[import]
+from loguru import logger
 
 # isort: off
 from fastapi import (
@@ -20,11 +19,17 @@ from fastapi import (
 from fastapi.responses import ORJSONResponse, StreamingResponse
 
 from app.bgtasks.bg_tasks import bg_llm_vision_clipper, bg_subtitle_clipper
+
+# isort: off
+from clippers.prompt.prompt_text import (
+    PROMPT_PICK_IMG_RETURN_JSON,
+    PROMPT_PICK_SUBTITLE_RETURN_JSON,
+)
+
+# isort: on
 from clippers.subtitle_clipper import SubtitleClipper
 
-LOGGER = logging.getLogger(__name__)
 router = APIRouter()
-srt_prompts = {}
 
 
 @router.post(
@@ -35,16 +40,11 @@ srt_prompts = {}
 async def upload_files(
     background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(description="source video files."),  # noqa: B008
-    prompt: str = Form(...),  # noqa: B008
+    request_id: Optional[str] = Form(None),  # noqa: B008
 ):
-    LOGGER.debug(f"prompt:{prompt}")  # noqa: G004
-
-    request_id = str(uuid.uuid4())
-    srt_prompts[request_id] = prompt
-
     output_dir = Path(f"app/static/videos/{request_id}")
     output_dir.mkdir(parents=True, exist_ok=True)
-    LOGGER.debug(f"vidoes path:{output_dir}")  # noqa: G004
+    logger.debug(f"vidoes path:{output_dir}")  # noqa: G004
 
     for f_in in files:
         fout_path = output_dir / f_in.filename  # type: ignore[operator]
@@ -52,8 +52,12 @@ async def upload_files(
             while content := await f_in.read(1024 * 1024):
                 await f_out.write(content)
 
-        background_tasks.add_task(bg_subtitle_clipper, path=fout_path, prompt=prompt)
-        background_tasks.add_task(bg_llm_vision_clipper, path=fout_path, prompt=prompt)
+        background_tasks.add_task(
+            bg_subtitle_clipper, path=fout_path, prompt=PROMPT_PICK_SUBTITLE_RETURN_JSON
+        )
+        background_tasks.add_task(
+            bg_llm_vision_clipper, path=fout_path, prompt=PROMPT_PICK_IMG_RETURN_JSON
+        )
 
     return {"message": "Files uploaded successfully", "request_id": request_id}
 
@@ -85,7 +89,6 @@ async def extract(background_tasks: BackgroundTasks, request_id: str):
     background_tasks.add_task(
         bg_subtitle_clipper,
         path=merge_filename,
-        prompt=srt_prompts[request_id],
         result_filename=session_path / "final.mp4",
     )
 

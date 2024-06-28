@@ -1,20 +1,15 @@
-import logging
-import logging.config
-
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from loguru import logger
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from app.__version__ import __version__
 from app.internal import healthz
-from app.libs.config import settings
 from app.uploads import uploads
 from utils.sentry import sentry_sdk  # noqa: F401
-
-logging.config.dictConfig(settings.LOGGING)
-LOGGER = logging.getLogger(__name__)
 
 description = """
 # SceneSpark
@@ -43,3 +38,27 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 async def get_index():
     with open("app/static/index.html") as f:
         return HTMLResponse(content=f.read())
+
+
+@app.middleware("http")
+async def log_request_middleware(request: Request, call_next):
+    logger.debug(f"Request method: {request.method}")
+    logger.debug(f"Request url: {request.url}")
+
+    # To log the request body, we need to read it first
+    body = await request.body()
+    logger.debug(f"Request body: {body}")
+
+    response = await call_next(request)
+    return response
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    # Log the details of the request and the exception
+    logger.error(f"Validation error: {exc}")
+    logger.error(f"Request body: {await request.body()}")
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors(), "body": exc.body},
+    )
