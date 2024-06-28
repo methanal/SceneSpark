@@ -27,58 +27,16 @@ class SubtitleClipper(BaseClipper):
         subs, srts = self.__transcribe_srt(video_path)
 
         _srts_json = llm_pick_srts(self.llm_client, srts, prompt)
-        subs_info = orjson.loads(_srts_json)
+        llm_srts = orjson.loads(_srts_json)
 
-        selected_subs = [subs[int(s["index"]) - 1] for s in subs_info]
-        clip_metadata_list = self._store_clips(video_path, selected_subs)
+        for s in llm_srts:
+            sub = subs[int(s["index"]) - 1]
+            s['start'] = sub.start.total_seconds()
+            s['end'] = sub.end.total_seconds()
 
-        for metadata, s in zip(clip_metadata_list, subs_info):
-            metadata['extract'] = s['extract']
+        self.store_clips(video_path, llm_srts)
 
-        return clip_metadata_list
-
-    def _store_clips(self, video_path: Path, subs) -> List[Dict]:
-        segments: List[Dict] = []
-
-        subs.sort(key=lambda x: x.start)
-        for x in subs:
-            if len(segments) == 0:
-                segments.append(
-                    {"start": x.start.total_seconds(), "end": x.end.total_seconds()}
-                )
-            else:
-                if x.start.total_seconds() - segments[-1]["end"] < 0.5:
-                    segments[-1]["end"] = x.end.total_seconds()
-                else:
-                    segments.append(
-                        {"start": x.start.total_seconds(), "end": x.end.total_seconds()}
-                    )
-
-        media = editor.VideoFileClip(video_path.as_posix())
-
-        clip_metadata_list = []
-        for s in segments:
-            start = s['start']
-            end = s['end']
-
-            clip = media.subclip(start, end)
-            aud = clip.audio.set_fps(44100)
-            clip: editor.VideoClip = clip.without_audio().set_audio(aud)  # type: ignore[no-redef]
-            clip: editor.VideoClip = clip.fx(editor.afx.audio_normalize)  # type: ignore[no-redef]
-
-            _name = video_path.with_name(f"{video_path.stem}_{start}.mp4")
-            clip.write_videofile(
-                _name.as_posix(), audio_codec="aac", bitrate=self.autocut_args.bitrate
-            )
-
-            clip_metadata_list.append(
-                {"start_time": start, "end_time": end, "file_path": _name.as_posix()}
-            )
-
-        media.close()
-
-        logging.debug(f"cut media to {clip_metadata_list}")  # noqa: G004
-        return clip_metadata_list
+        return llm_srts
 
     def __transcribe_srt(self, video_path: Path):
         if not is_video(video_path):
