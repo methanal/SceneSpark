@@ -94,9 +94,10 @@ class LLMVisionClipper(BaseClipper):
 
 
 if __name__ == "__main__":
+    from clippers.prompt.prompt_text import PROMPT_PICK_IMG_RETURN_JSON
+
     llmv_clipper = LLMVisionClipper()
     video_name = '2.mp4'
-    from clippers.prompt.prompt_text import PROMPT_PICK_IMG_RETURN_JSON
 
     llmv_clipper.extract_clips(
         video_path=Path(video_name), prompt=PROMPT_PICK_IMG_RETURN_JSON

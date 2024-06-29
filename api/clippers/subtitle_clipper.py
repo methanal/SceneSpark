@@ -1,5 +1,5 @@
 import argparse
-import logging
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -7,12 +7,21 @@ import orjson
 import srt
 from autocut.transcribe import Transcribe
 from autocut.utils import is_video, load_audio
+from loguru import logger
 from moviepy import editor
 
-from clippers.base_clipper import BaseClipper
-from clippers.wrappers.llm_wrapper import initialize_llm_client, llm_pick_srts
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
 
-LOGGER = logging.getLogger(__name__)
+from clippers.base_clipper import BaseClipper  # noqa: E402
+
+# isort: off
+from clippers.wrappers.llm_wrapper import (  # noqa: E402
+    initialize_llm_client,
+    llm_pick_srts,
+)
+
+# isort: on
 
 
 class SubtitleClipper(BaseClipper):
@@ -28,6 +37,7 @@ class SubtitleClipper(BaseClipper):
 
         _srts_json = llm_pick_srts(self.llm_client, srts, prompt)
         llm_srts = orjson.loads(_srts_json)
+        llm_srts = llm_srts['picked']
 
         for s in llm_srts:
             sub = subs[int(s["index"]) - 1]
@@ -40,7 +50,7 @@ class SubtitleClipper(BaseClipper):
 
     def __transcribe_srt(self, video_path: Path):
         if not is_video(video_path):
-            LOGGER.warning(f"{video_path} isn't a valid video.")  # noqa: G004
+            logger.warning(f"{video_path} isn't a valid video.")  # noqa: G004
 
         transcriber = Transcribe(self.autocut_args)
 
@@ -52,7 +62,7 @@ class SubtitleClipper(BaseClipper):
 
         subs = transcriber.whisper_model.gen_srt(transcribe_results)
         srts = srt.compose(subs)
-        LOGGER.debug(f"{srts}")  # noqa: G004
+        logger.debug(f"{srts}")  # noqa: G004
         return subs, srts
 
     @staticmethod
@@ -105,7 +115,7 @@ class SubtitleClipper(BaseClipper):
             videos.append(editor.VideoFileClip(file.as_posix()))
 
         dur = sum([v.duration for v in videos])
-        logging.info(
+        logger.info(
             f"Merging into a video with {dur / 60:.1f} min length"  # noqa: G004
         )
 
@@ -115,4 +125,16 @@ class SubtitleClipper(BaseClipper):
             merge_filename.as_posix(), audio_codec="aac", bitrate=bitrate
         )
 
-        logging.info(f"Saved merged video to {merge_filename}")  # noqa: G004
+        logger.info(f"Saved merged video to {merge_filename}")  # noqa: G004
+
+
+if __name__ == "__main__":
+    from clippers.prompt.prompt_text import PROMPT_PICK_SUBTITLE_RETURN_JSON
+
+    args = SubtitleClipper.gen_args()
+    sub_clipper = SubtitleClipper(args)
+    video_name = '2.mp4'
+
+    sub_clipper.extract_clips(
+        video_path=Path(video_name), prompt=PROMPT_PICK_SUBTITLE_RETURN_JSON
+    )
