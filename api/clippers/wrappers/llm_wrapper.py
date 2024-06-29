@@ -17,10 +17,10 @@ def initialize_llm_client(llm_provider: str = 'openai'):
 
 def llm_pick_srts(llm_client, srts, prompt):
     messages = [
-        {"role": "system", "content": f"{prompt}"},
+        # {"role": "system", "content": f"{prompt}"},
         {"role": "user", "content": f"{srts}"},
     ]
-    response = llm_client.chat(messages)
+    response = llm_client.chat(messages, system=prompt)
 
     return response.content
 
