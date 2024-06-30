@@ -12,6 +12,7 @@ from loguru import logger
 parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir))
 
+from app.libs.config import settings  # noqa: E402
 from clippers.base_clipper import BaseClipper  # noqa: E402
 
 # isort: off
@@ -29,7 +30,7 @@ class LLMVisionClipper(BaseClipper):
         self.llm_client = initialize_llm_client()
 
     def extract_clips(self, video_path: Path, prompt: str) -> List[Dict]:
-        sample_interval = 2.0  # seconds
+        sample_interval = settings.VIDEO_SAMPLE_INTERVAL_SECOND
         encode_frames = LLMVisionClipper.sample_frames(
             video_path, interval=sample_interval, save_image=True
         )
@@ -38,21 +39,25 @@ class LLMVisionClipper(BaseClipper):
 
         try:
             imgs_info = orjson.loads(_imgs_json)
+            imgs_info = imgs_info['picked']
         except orjson.JSONDecodeError as e:
             logger.warning("llm doesn't return JSON, it returns: %s", str(e))
 
-        # FIXME: The following code has not been debugged
-        raise NotImplementedError('Just Here')
-        selected_frames = [int(s["index"]) - 1 for s in imgs_info]
-        clip_metadata_list = self._store_clips(video_path, selected_frames)
+        offset = 0.5  # 0.5 second
+        for m in imgs_info:
+            idx = int(m["index"]) - 1
+            m['start'] = idx * sample_interval
+            if m['start'] > offset:
+                m['start'] -= offset
 
-        for metadata, s in zip(clip_metadata_list, imgs_info):
-            metadata['extract'] = s['extract']
+            m['end'] = (idx + 1) * sample_interval + offset
 
-        return clip_metadata_list
+        # TODO
+        # The current editing approach results in poor audio continuity.
+        # To fix this, use subtitle timing correction.
+        self.store_clips(video_path, imgs_info)
 
-    def _store_clips(self, video_path: Path, frames) -> List[Dict]:
-        return list(dict())  # TODO
+        return imgs_info
 
     @staticmethod
     def sample_frames(
@@ -98,7 +103,6 @@ if __name__ == "__main__":
 
     llmv_clipper = LLMVisionClipper()
     video_name = '2.mp4'
+    prompt = PROMPT_PICK_IMG_RETURN_JSON.format(settings.LLM_VIDEO_SELECTION_RATIO)
 
-    llmv_clipper.extract_clips(
-        video_path=Path(video_name), prompt=PROMPT_PICK_IMG_RETURN_JSON
-    )
+    llmv_clipper.extract_clips(video_path=Path(video_name), prompt=prompt)

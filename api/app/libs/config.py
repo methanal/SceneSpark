@@ -17,6 +17,14 @@ class Settings(BaseSettings):
     OPENAI_BASE_URL: str = ''
     OPENAI_TEMPERATURE: float = 0.4
 
+    # Frame, after compression, can be successfully sent to the OpenAI API,
+    # but may easily reach GPT-4's token limits (30,000 TPM).
+    # Consider adjusting the account's TPM, increasing the sample seconds, or switching to a different LLM.
+    VIDEO_SAMPLE_INTERVAL_SECOND: float = 4.0  # seconds
+
+    LLM_SUBTITLE_SELECTION_RATIO: str = "三分之一"
+    LLM_VIDEO_SELECTION_RATIO: str = "三分之一"
+
     BITRATE: str = '10m'
 
     def get_llm_provider_config(self, provider: str) -> Dict[str, Union[str, float]]:

@@ -17,7 +17,6 @@ def initialize_llm_client(llm_provider: str = 'openai'):
 
 def llm_pick_srts(llm_client, srts, prompt):
     messages = [
-        # {"role": "system", "content": f"{prompt}"},
         {"role": "user", "content": f"{srts}"},
     ]
     response = llm_client.chat(messages, system=prompt)
@@ -42,8 +41,12 @@ def llm_pick_imgs(
     messages = [{"role": "user", "content": content}]
     response = llm_client.chat(messages)
 
+    if response.stop_reason == 'error':
+        logger.warning(response.response)
+        return {'picked': []}
+
     usage = orjson.loads(response.original_result)['usage']
-    logger.warning(f"LLM usage: {usage}")  # noqa: G004
+    logger.info("LLM usage: %s", usage)
 
     return response.content
 

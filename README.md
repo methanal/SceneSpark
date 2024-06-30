@@ -88,12 +88,10 @@ API details will be provided soon. Stay tuned for updates.
 
 - [x] **Subtitle Clipper**
     - Implement the /api/v1/clips/subtitle_clipper/{request\_id} API endpoint to retrieve results for a specific request_id. The response should be a JSON object that includes the start and end times of the clip, the relative path where the clip is stored, and the clip’s tags and description.
-    - Refactor the frontend, remove the “Extract” and “View Results” buttons, using AJAX to dynamically fetch results instead.
-    - Update the frontend, load video files of clips within a list component, displaying their associated tags and descriptions.
-    - Refactor the API and OpenAPI documentation to include Request and Response schemas.
 - [] **LLM CV Clipper**
     - Compress sampled frames to minimize token usage and submit more frames per request.
     - Finalize the LLM prompt to extract key frames from consecutive frames, returning a JSON object. The JSON should include relevant data extracted from the frames.
+    - Use subtitles to assist in correcting video editing
     - Tags extraction: https://github.com/PaddlePaddle/PaddleVideo/tree/develop/applications/VideoTag
 - [] **OCR Clipper**
 - [] **RAG**
