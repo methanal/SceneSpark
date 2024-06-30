@@ -105,6 +105,7 @@ API details will be provided soon. Stay tuned for updates.
 - [] **Multiple Video Support**
     - Upload multiple video
     - multi-round clipping
+    - token evaluator
 - [] **OCR Clipper**
 - [] **RAG**
 - [] **Microservices Architecture**

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -27,6 +28,13 @@ app = FastAPI(
 )
 app.add_middleware(SentryAsgiMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(healthz.router)
 app.include_router(uploads.router)
@@ -40,17 +48,17 @@ async def get_index():
         return HTMLResponse(content=f.read())
 
 
-@app.middleware("http")
-async def log_request_middleware(request: Request, call_next):
-    logger.debug(f"Request method: {request.method}")
-    logger.debug(f"Request url: {request.url}")
-
-    # To log the request body, we need to read it first
-    body = await request.body()
-    logger.debug(f"Request body: {body}")
-
-    response = await call_next(request)
-    return response
+# @app.middleware("http")
+# async def log_request_middleware(request: Request, call_next):
+#     logger.debug(f"Request method: {request.method}")
+#     logger.debug(f"Request url: {request.url}")
+#
+#     # To log the request body, we need to read it first
+#     body = await request.body()
+#     logger.debug(f"Request body: {body}")
+#
+#     response = await call_next(request)
+#     return response
 
 
 @app.exception_handler(RequestValidationError)

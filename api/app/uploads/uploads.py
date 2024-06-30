@@ -1,3 +1,4 @@
+import pickle
 from pathlib import Path
 from typing import List, Optional
 
@@ -28,7 +29,6 @@ from clippers.prompt.prompt_text import (
 )
 
 # isort: on
-from clippers.subtitle_clipper import SubtitleClipper
 
 router = APIRouter()
 
@@ -54,16 +54,17 @@ async def upload_files(
                 await f_out.write(content)
 
         subtitle_prompt = PROMPT_PICK_SUBTITLE_RETURN_JSON.format(
-            settings.LLM_SUBTITLE_SELECTION_RATIO
+            selection_ratio=settings.LLM_SUBTITLE_SELECTION_RATIO
         )
         background_tasks.add_task(
-            bg_subtitle_clipper, path=fout_path, prompt=subtitle_prompt
+            bg_subtitle_clipper, video_path=fout_path, prompt=subtitle_prompt
         )
+
         video_prompt = PROMPT_PICK_IMG_RETURN_JSON.format(
-            settings.LLM_VIDEO_SELECTION_RATIO
+            selection_ratio=settings.LLM_VIDEO_SELECTION_RATIO
         )
         background_tasks.add_task(
-            bg_llm_vision_clipper, path=fout_path, prompt=video_prompt
+            bg_llm_vision_clipper, video_path=fout_path, prompt=video_prompt
         )
 
     return {"message": "Files uploaded successfully", "request_id": request_id}
@@ -74,32 +75,14 @@ async def upload_files(
     response_class=ORJSONResponse,
 )
 async def extract(background_tasks: BackgroundTasks, request_id: str):
-    """
-    TODO: Reimplement this function to extract clips and return each clip's JSON description.
-    The JSON description should include tags and a brief description for each clip.
+    mark_file = Path(f"app/static/videos/{request_id}/clip_complete")
+    if mark_file.is_file() and mark_file.exists():
+        with open('llm_srts.pkl', 'rb') as f:
+            llm_srts = pickle.load(f)  # nosec
 
-    Returns:
-    list: A list of JSON objects, each representing a clip with tags and description.
-    """
-    session_path = Path(f"app/static/videos/{request_id}")
+            return {"msg": "done", 'llm_srts': llm_srts}
 
-    if not (cut_files := SubtitleClipper.all_cut_ready(session_path)):
-        return ORJSONResponse(
-            content={"message": "cut still not ready yet"}, status_code=202
-        )
-
-    merge_filename = session_path / "merge.mp4"
-    background_tasks.add_task(
-        SubtitleClipper.merge_videos, cut_files, session_path, merge_filename
-    )
-
-    background_tasks.add_task(
-        bg_subtitle_clipper,
-        path=merge_filename,
-        result_filename=session_path / "final.mp4",
-    )
-
-    return {"message": "Extract job submitted"}
+    return {"msg": "not ready yet"}
 
 
 @router.get("/api/v1/download/{request_id}/{file_name}")

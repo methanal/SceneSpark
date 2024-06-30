@@ -25,15 +25,18 @@ from clippers.wrappers.llm_wrapper import (  # noqa: E402
 
 
 class LLMVisionClipper(BaseClipper):
-    def __init__(self):
+    def __init__(self, video_path: Path):
         super().__init__()
         self.llm_client = initialize_llm_client()
+        self._video_path = video_path
 
-    def extract_clips(self, video_path: Path, prompt: str) -> List[Dict]:
+    @property
+    def video_path(self):
+        return self._video_path
+
+    def extract_clips(self, prompt: str) -> List[Dict]:
         sample_interval = settings.VIDEO_SAMPLE_INTERVAL_SECOND
-        encode_frames = LLMVisionClipper.sample_frames(
-            video_path, interval=sample_interval, save_image=True
-        )
+        encode_frames = self.sample_frames(interval=sample_interval, save_image=True)
 
         _imgs_json = llm_pick_imgs(self.llm_client, prompt, data_list=encode_frames)
 
@@ -55,15 +58,16 @@ class LLMVisionClipper(BaseClipper):
         # TODO
         # The current editing approach results in poor audio continuity.
         # To fix this, use subtitle timing correction.
-        self.store_clips(video_path, imgs_info)
+        self.store_clips(imgs_info)
+        self.pickle_segments_json(obj=imgs_info, name='imgs_info')
+        self.mark_complete()
 
         return imgs_info
 
-    @staticmethod
     def sample_frames(
-        video_path: Path, interval: float = 5.0, save_image: bool = False
+        self, interval: float = 5.0, save_image: bool = False
     ) -> List[str]:
-        video = cv2.VideoCapture(video_path)
+        video = cv2.VideoCapture(self.video_path)
         fps = video.get(cv2.CAP_PROP_FPS)
 
         interval_frames = int(fps * interval)
@@ -72,7 +76,7 @@ class LLMVisionClipper(BaseClipper):
 
         while True:
             ret, frame = video.read()
-            # _png_path = video_path.parent / f'{frame_count}.png'
+            # _png_path = self.video_path.parent / f'{frame_count}.png'
             # cv2.imwrite(_png_path, frame)
             if not ret:
                 break
@@ -87,7 +91,7 @@ class LLMVisionClipper(BaseClipper):
                 encoded_frames.append(_buffer.tobytes())
 
                 if save_image:
-                    _img_path = video_path.parent / f'{frame_count}.jpg'
+                    _img_path = self.video_path.parent / f'{frame_count}.jpg'
                     with open(_img_path, "wb") as f:
                         f.write(_buffer.tobytes())
 
@@ -101,8 +105,10 @@ class LLMVisionClipper(BaseClipper):
 if __name__ == "__main__":
     from clippers.prompt.prompt_text import PROMPT_PICK_IMG_RETURN_JSON
 
-    llmv_clipper = LLMVisionClipper()
     video_name = '2.mp4'
-    prompt = PROMPT_PICK_IMG_RETURN_JSON.format(settings.LLM_VIDEO_SELECTION_RATIO)
+    llmv_clipper = LLMVisionClipper(video_path=Path(video_name))
+    prompt = PROMPT_PICK_IMG_RETURN_JSON.format(
+        selection_ratio=settings.LLM_VIDEO_SELECTION_RATIO
+    )
 
-    llmv_clipper.extract_clips(video_path=Path(video_name), prompt=prompt)
+    llmv_clipper.extract_clips(prompt=prompt)
