@@ -11,6 +11,43 @@ const App = () => {
   const [videoClips, setVideoClips] = useState([]);
   const [selectedClip, setSelectedClip] = useState(null);
 
+  const pollExtract = async (uniqueID) => {
+    const timeout = 1800000; // 总超时时间 30 分钟
+    const pollInterval = 4000; // 每5秒轮询一次
+    const endTime = Date.now() + timeout;
+
+    const poll = async (resolve, reject) => {
+      try {
+        const extractResponse = await fetch(`http://127.0.0.1:8000/api/v1/extract/${uniqueID}`);
+        if (extractResponse.ok) {
+          const extractResult = await extractResponse.json();
+
+          if (extractResult.msg === 'done' && extractResult.llm_srts && extractResult.llm_srts.length > 0) {
+            setVideoClips(extractResult.llm_srts.map(item => ({
+              url: item.file_path,
+              tags: item.tags || [],
+              description: item.description || ''
+            })));
+            message.info('Extraction completed successfully.');
+            return resolve();
+          } else if (Date.now() >= endTime) {
+            message.error('Polling timed out.');
+            return reject(new Error('Polling timed out.'));
+          }
+        } else {
+          message.error('Extraction failed');
+          return reject(new Error('Extraction failed'));
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+        return reject(error);
+      }
+
+      setTimeout(() => poll(resolve, reject), pollInterval);
+    };
+
+    return new Promise(poll);
+  };
   const handleUpload = async (options) => {
     const { file, onSuccess, onError } = options;
     const formData = new FormData();
@@ -25,23 +62,18 @@ const App = () => {
         body: formData
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        const newClips = result.fileUrls.map((url, index) => ({
-          url,
-          tags: result.tags ? result.tags[index] : [],
-          description: result.descriptions ? result.descriptions[index] : ''
-        }));
-        setVideoClips(prevClips => [...prevClips, ...newClips]);
+      console.log('Response status:', response.status);
+
+      if (response.ok || response.status === 202) {
+        await pollExtract(uniqueID);
         onSuccess("ok");
-        message.success(`Files uploaded successfully. Request ID: ${result.request_id}`);
       } else {
         onError('上传失败');
-        message.error('上传失败');
+        message.error('上传失败1');
       }
     } catch (error) {
       onError(error);
-      message.error('上传失败');
+      message.error('上传失败2');
     }
   };
 
@@ -77,7 +109,7 @@ const App = () => {
         )}
       </Content>
       <Footer style={{ textAlign: 'center' }}>
-        Video Clips App ©2024 Created by YourName
+        SceneSpark ©2024 Created by methanal
       </Footer>
     </Layout>
   );
