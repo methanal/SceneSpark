@@ -7,19 +7,21 @@ services:
     volumes:
       - ./api/.env:/app/.env
       - ./api:/app
+      - ./pv-data/uploads:/tmp/videos
 
   web:
     image: ${DOCKER_REGISTY}/scenespark-web:${WEB_TAG}
     restart: always
     volumes:
-      - ./web/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./pv-data/web/scenespark.dev.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - api
 
   nginx:
     image: nginx:latest
     volumes:
-      - ./nginx/scenespark.dev.conf:/etc/nginx/conf.d/default.conf
+      - ./pv-data/nginx/scenespark.dev.conf:/etc/nginx/conf.d/default.conf
+      - ./pv-data/uploads:/videos
     depends_on:
       - web
     ports:

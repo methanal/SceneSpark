@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 scenespark:base-202406211024
+FROM --platform=linux/amd64 registry.cn-heyuan.aliyuncs.com/methanal/scenespark-base:202406302204
 ENV TZ=Asia/Shanghai
 ARG DEBIAN_FRONTEND=noninteractive
 

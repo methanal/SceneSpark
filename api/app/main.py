@@ -2,13 +2,14 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from app.__version__ import __version__
 from app.internal import healthz
+from app.libs.config import settings
 from app.uploads import uploads
 from utils.sentry import sentry_sdk  # noqa: F401
 
@@ -39,14 +40,7 @@ app.add_middleware(
 app.include_router(healthz.router)
 app.include_router(uploads.router)
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
-
-
-@app.get("/", response_class=HTMLResponse)
-async def get_index():
-    with open("app/static/index.html") as f:
-        return HTMLResponse(content=f.read())
-
+app.mount("/videos", StaticFiles(directory=settings.UPLOAD_BASE_PATH), name="videos")
 
 # @app.middleware("http")
 # async def log_request_middleware(request: Request, call_next):
