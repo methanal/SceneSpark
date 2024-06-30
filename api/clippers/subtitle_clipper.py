@@ -25,15 +25,20 @@ from clippers.wrappers.llm_wrapper import (  # noqa: E402
 
 
 class SubtitleClipper(BaseClipper):
-    def __init__(self, autocut_args):
+    def __init__(self, autocut_args, video_path: Path):
         super().__init__()
         self.autocut_args = autocut_args
         self.llm_client = initialize_llm_client()
+        self._video_path = video_path
 
-    def extract_clips(self, video_path: Path, prompt: str) -> List[Dict]:
-        self.autocut_args.inputs = [video_path]
+    @property
+    def video_path(self):
+        return self._video_path
 
-        subs, srts = self.__transcribe_srt(video_path)
+    def extract_clips(self, prompt: str) -> List[Dict]:
+        self.autocut_args.inputs = [self.video_path]
+
+        subs, srts = self.__transcribe_srt()
 
         _srts_json = llm_pick_srts(self.llm_client, srts, prompt)
         try:
@@ -47,20 +52,22 @@ class SubtitleClipper(BaseClipper):
             s['start'] = sub.start.total_seconds()
             s['end'] = sub.end.total_seconds()
 
-        self.store_clips(video_path, llm_srts)
+        self.store_clips(llm_srts)
+        self.pickle_segments_json(obj=llm_srts, name='llm_srts')
+        self.mark_complete()
 
         return llm_srts
 
-    def __transcribe_srt(self, video_path: Path):
-        if not is_video(video_path):
-            logger.warning(f"{video_path} isn't a valid video.")  # noqa: G004
+    def __transcribe_srt(self):
+        if not is_video(self.video_path):
+            logger.warning(f"{self.video_path} isn't a valid video.")  # noqa: G004
 
         transcriber = Transcribe(self.autocut_args)
 
-        audio = load_audio(video_path, sr=transcriber.sampling_rate)
+        audio = load_audio(self.video_path, sr=transcriber.sampling_rate)
         speech_array_indices = transcriber._detect_voice_activity(audio)
         transcribe_results = transcriber._transcribe(
-            video_path, audio, speech_array_indices
+            self.video_path, audio, speech_array_indices
         )
 
         subs = transcriber.whisper_model.gen_srt(transcribe_results)
@@ -71,7 +78,7 @@ class SubtitleClipper(BaseClipper):
     @staticmethod
     def gen_args(
         inputs: Optional[list] = None,
-        prompt: str = '',
+        audio_prompt: str = '',
         whisper_mode: str = 'whisper',
         whisper_model: str = 'small',
         device: Optional[str] = None,
@@ -84,7 +91,7 @@ class SubtitleClipper(BaseClipper):
             s=None,
             to_md=None,
             lang='zh',
-            prompt=prompt,
+            prompt=audio_prompt,
             whisper_mode=whisper_mode,
             openai_rpm=3,
             whisper_model=whisper_model,
@@ -94,20 +101,6 @@ class SubtitleClipper(BaseClipper):
             encoding='utf-8',
             device=None,
         )
-
-    @staticmethod
-    def all_cut_ready(path: Path):
-        """检查目录下，每个 {name}.{suffix}，都有对应的 {name}_cut.mp4 文件"""
-        ret_files = []
-        for file in path.iterdir():
-            if is_video(file) and '_cut' not in file.stem:
-                cut_file = file.with_name(f"{file.stem}_cut.mp4")
-                if not cut_file.exists():
-                    return []
-
-                ret_files.append(cut_file)
-
-        return ret_files
 
     @staticmethod
     def merge_videos(
@@ -135,11 +128,11 @@ if __name__ == "__main__":
     from app.libs.config import settings
     from clippers.prompt.prompt_text import PROMPT_PICK_SUBTITLE_RETURN_JSON
 
-    args = SubtitleClipper.gen_args()
-    sub_clipper = SubtitleClipper(args)
     video_name = '2.mp4'
+    args = SubtitleClipper.gen_args()
+    sub_clipper = SubtitleClipper(args, video_path=Path(video_name))
     prompt = PROMPT_PICK_SUBTITLE_RETURN_JSON.format(
         selection_ratio=settings.LLM_SUBTITLE_SELECTION_RATIO
     )
 
-    sub_clipper.extract_clips(video_path=Path(video_name), prompt=prompt)
+    sub_clipper.extract_clips(prompt=prompt)

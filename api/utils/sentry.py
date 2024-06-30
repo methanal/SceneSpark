@@ -5,7 +5,9 @@ import sentry_sdk
 
 # from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.excepthook import ExcepthookIntegration
+from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration, ignore_logger
+from sentry_sdk.integrations.starlette import StarletteIntegration
 
 from app.libs.config import settings
 
@@ -22,6 +24,14 @@ sentry_sdk.init(
         sentry_logging,
         # RedisIntegration(),
         ExcepthookIntegration(always_run=True),
+        StarletteIntegration(
+            transaction_style="endpoint",
+            failed_request_status_codes=[range(400, 499), range(500, 599)],
+        ),
+        FastApiIntegration(
+            transaction_style="endpoint",
+            failed_request_status_codes=[range(400, 499), range(500, 599)],
+        ),
     ],
     release=os.getenv('LAIN_META', '').split('-')[-1] or None,
     traces_sample_rate=settings.SENTRY_APM_SAMPLE_RATE,

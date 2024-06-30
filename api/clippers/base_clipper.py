@@ -1,10 +1,11 @@
+import pickle
 from abc import ABC, abstractmethod
-from pathlib import Path
 from typing import Dict, List
 
 from moviepy import editor
 
 from app.libs.config import settings
+from utils.tools import purge_dir
 
 
 class IClipper(ABC):
@@ -18,7 +19,7 @@ class IClipper(ABC):
         pass
 
     @abstractmethod
-    def extract_clips(self, video_path: Path, prompt: str) -> List[Dict]:
+    def extract_clips(self, prompt: str) -> List[Dict]:
         """
         Extract clips from the video and return a list of JSON objects.
 
@@ -40,11 +41,19 @@ class BaseClipper(IClipper):
     def __init__(self):
         super().__init__()
 
-    def extract_clips(self, video_path: Path, prompt: str) -> List[Dict]:
+    @property
+    @abstractmethod
+    def video_path(self):
+        pass
+
+    def extract_clips(self, prompt: str) -> List[Dict]:
         raise NotImplementedError("BaseClipper.extract_clips not implementted")
 
-    def store_clips(self, video_path: Path, segments: List[Dict]) -> None:
-        media = editor.VideoFileClip(video_path.as_posix())
+    def store_clips(self, segments: List[Dict], purge_path: bool = True) -> None:
+        if purge_path:
+            purge_dir(self.video_path.parent)
+
+        media = editor.VideoFileClip(self.video_path.as_posix())
 
         for s in segments:
             start = s['start']
@@ -55,7 +64,7 @@ class BaseClipper(IClipper):
             clip: editor.VideoClip = clip.without_audio().set_audio(aud)  # type: ignore[no-redef]
             clip: editor.VideoClip = clip.fx(editor.afx.audio_normalize)  # type: ignore[no-redef]
 
-            _name = video_path.with_name(f"{video_path.stem}_{start}.mp4")
+            _name = self.video_path.with_name(f"{self.video_path.stem}_{start}.mp4")
             clip.write_videofile(
                 _name.as_posix(), audio_codec="aac", bitrate=settings.BITRATE
             )
@@ -63,3 +72,11 @@ class BaseClipper(IClipper):
             s['file_path'] = _name
 
         media.close()
+
+    def pickle_segments_json(self, obj: List, name: str) -> None:
+        with open(f'{name}.pkl', 'wb') as f:
+            pickle.dump(obj, f)
+
+    def mark_complete(self) -> None:
+        p = self.video_path.parent / 'clip_complete'
+        p.touch()
