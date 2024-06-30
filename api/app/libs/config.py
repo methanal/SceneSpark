@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Dict, Optional, Union
 
 from pydantic_settings import BaseSettings
@@ -12,6 +13,9 @@ class Settings(BaseSettings):
 
     SENTRY_DSN: str = ''
     SENTRY_APM_SAMPLE_RATE: Optional[float] = 1
+
+    UPLOAD_BASE_PATH: Path
+    VIDEOS_URI_PREFIX: Path = Path('/videos')
 
     OPENAI_API_KEY: str = ''
     OPENAI_BASE_URL: str = ''

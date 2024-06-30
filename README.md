@@ -1,4 +1,7 @@
-<h1 align="center">SceneSpark</h1>
+<h1 align="center">
+  <img src="https://github.com/methanal/SceneSpark/blob/main/logo.png" alt="SceneSpark Logo" width="100">
+  <br>SceneSpark
+</h1>
 <p align="center">Automatically extract and generate key scenes from videos, creating impactful and concise highlights.</p>
 <h4 align="center">
     <a href="https://github.com/methanal/scenespark/actions/workflows/pre-commit-api.yml" target="_blank">

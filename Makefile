@@ -1,7 +1,7 @@
 init:
 	pre-commit install
 
-dev:
+deploy-dev:
 	docker compose -f docker-compose.dev.yaml --env-file .docker-compose.dev.env down
 	docker compose -f docker-compose.dev.yaml --env-file .docker-compose.dev.env up -d
 

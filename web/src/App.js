@@ -18,7 +18,7 @@ const App = () => {
 
     const poll = async (resolve, reject) => {
       try {
-        const extractResponse = await fetch(`http://127.0.0.1:8000/api/v1/extract/${uniqueID}`);
+        const extractResponse = await fetch(`/api/v1/extract/${uniqueID}`);
         if (extractResponse.ok) {
           const extractResult = await extractResponse.json();
 
@@ -57,7 +57,7 @@ const App = () => {
     formData.append('request_id', uniqueID);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/v1/upload', {
+      const response = await fetch('/api/v1/upload', {
         method: 'POST',
         body: formData
       });
