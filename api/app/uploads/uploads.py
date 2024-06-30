@@ -21,6 +21,7 @@ from fastapi.responses import ORJSONResponse, StreamingResponse
 
 from app.bgtasks.bg_tasks import bg_llm_vision_clipper, bg_subtitle_clipper
 from app.libs.config import settings
+from utils.tools import purge_dir
 
 # isort: off
 from clippers.prompt.prompt_text import (
@@ -43,8 +44,9 @@ async def upload_files(
     files: List[UploadFile] = File(description="source video files."),  # noqa: B008
     request_id: Optional[str] = Form(None),  # noqa: B008
 ):
-    output_dir = Path(f"app/static/videos/{request_id}")
+    output_dir = Path(f"{settings.UPLOAD_BASE_PATH}/{request_id}")
     output_dir.mkdir(parents=True, exist_ok=True)
+    purge_dir(output_dir)
     logger.debug(f"vidoes path:{output_dir}")  # noqa: G004
 
     for f_in in files:
@@ -75,7 +77,7 @@ async def upload_files(
     response_class=ORJSONResponse,
 )
 async def extract(background_tasks: BackgroundTasks, request_id: str):
-    mark_file = Path(f"app/static/videos/{request_id}/clip_complete")
+    mark_file = Path(f"{settings.UPLOAD_BASE_PATH}/{request_id}/clip_complete")
     if mark_file.is_file() and mark_file.exists():
         with open('llm_srts.pkl', 'rb') as f:
             llm_srts = pickle.load(f)  # nosec
@@ -91,7 +93,7 @@ async def download_file(request_id: str, file_name: str):
     TODO: This function currently serves no specific purpose,
     but is kept for potential use in future development.
     """
-    file_path = Path(f"app/static/videos/{request_id}/{file_name}")
+    file_path = Path(f"{settings.UPLOAD_BASE_PATH}/{request_id}/{file_name}")
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
 

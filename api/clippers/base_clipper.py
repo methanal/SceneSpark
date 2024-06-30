@@ -5,7 +5,6 @@ from typing import Dict, List
 from moviepy import editor
 
 from app.libs.config import settings
-from utils.tools import purge_dir
 
 
 class IClipper(ABC):
@@ -49,10 +48,7 @@ class BaseClipper(IClipper):
     def extract_clips(self, prompt: str) -> List[Dict]:
         raise NotImplementedError("BaseClipper.extract_clips not implementted")
 
-    def store_clips(self, segments: List[Dict], purge_path: bool = True) -> None:
-        if purge_path:
-            purge_dir(self.video_path.parent)
-
+    def store_clips(self, segments: List[Dict]) -> None:
         media = editor.VideoFileClip(self.video_path.as_posix())
 
         for s in segments:
@@ -69,7 +65,9 @@ class BaseClipper(IClipper):
                 _name.as_posix(), audio_codec="aac", bitrate=settings.BITRATE
             )
 
-            s['file_path'] = _name
+            s['file_path'] = settings.VIDEOS_URI_PREFIX / _name.relative_to(
+                settings.UPLOAD_BASE_PATH
+            )
 
         media.close()
 
