@@ -36,8 +36,11 @@ class SubtitleClipper(BaseClipper):
         subs, srts = self.__transcribe_srt(video_path)
 
         _srts_json = llm_pick_srts(self.llm_client, srts, prompt)
-        llm_srts = orjson.loads(_srts_json)
-        llm_srts = llm_srts['picked']
+        try:
+            llm_srts = orjson.loads(_srts_json)
+            llm_srts = llm_srts['picked']
+        except orjson.JSONDecodeError as e:
+            logger.warning("llm doesn't return JSON, it returns: %s", str(e))
 
         for s in llm_srts:
             sub = subs[int(s["index"]) - 1]
@@ -129,12 +132,14 @@ class SubtitleClipper(BaseClipper):
 
 
 if __name__ == "__main__":
+    from app.libs.config import settings
     from clippers.prompt.prompt_text import PROMPT_PICK_SUBTITLE_RETURN_JSON
 
     args = SubtitleClipper.gen_args()
     sub_clipper = SubtitleClipper(args)
     video_name = '2.mp4'
-
-    sub_clipper.extract_clips(
-        video_path=Path(video_name), prompt=PROMPT_PICK_SUBTITLE_RETURN_JSON
+    prompt = PROMPT_PICK_SUBTITLE_RETURN_JSON.format(
+        selection_ratio=settings.LLM_SUBTITLE_SELECTION_RATIO
     )
+
+    sub_clipper.extract_clips(video_path=Path(video_name), prompt=prompt)

@@ -19,6 +19,7 @@ from fastapi import (
 from fastapi.responses import ORJSONResponse, StreamingResponse
 
 from app.bgtasks.bg_tasks import bg_llm_vision_clipper, bg_subtitle_clipper
+from app.libs.config import settings
 
 # isort: off
 from clippers.prompt.prompt_text import (
@@ -52,11 +53,17 @@ async def upload_files(
             while content := await f_in.read(1024 * 1024):
                 await f_out.write(content)
 
-        background_tasks.add_task(
-            bg_subtitle_clipper, path=fout_path, prompt=PROMPT_PICK_SUBTITLE_RETURN_JSON
+        subtitle_prompt = PROMPT_PICK_SUBTITLE_RETURN_JSON.format(
+            settings.LLM_SUBTITLE_SELECTION_RATIO
         )
         background_tasks.add_task(
-            bg_llm_vision_clipper, path=fout_path, prompt=PROMPT_PICK_IMG_RETURN_JSON
+            bg_subtitle_clipper, path=fout_path, prompt=subtitle_prompt
+        )
+        video_prompt = PROMPT_PICK_IMG_RETURN_JSON.format(
+            settings.LLM_VIDEO_SELECTION_RATIO
+        )
+        background_tasks.add_task(
+            bg_llm_vision_clipper, path=fout_path, prompt=video_prompt
         )
 
     return {"message": "Files uploaded successfully", "request_id": request_id}
