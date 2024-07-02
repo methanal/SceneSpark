@@ -1,16 +1,19 @@
 name: scenespark-dev
-version: '3.1'
 services:
   api:
     image: ${DOCKER_REGISTY}/scenespark-api:${API_TAG}
+    platform: linux/amd64
     restart: always
     volumes:
       - ./api/.env:/app/.env
       - ./api:/app
       - ./pv-data/uploads:/tmp/videos
+      - ~/.cache/torch:/root/.cache/torch
+      - ~/.cache/whisper:/root/.cache/whisper
 
   web:
     image: ${DOCKER_REGISTY}/scenespark-web:${WEB_TAG}
+    platform: linux/amd64
     restart: always
     volumes:
       - ./pv-data/web/scenespark.dev.conf:/etc/nginx/conf.d/default.conf
@@ -19,13 +22,14 @@ services:
 
   nginx:
     image: nginx:latest
+    platform: linux/amd64
     volumes:
       - ./pv-data/nginx/scenespark.dev.conf:/etc/nginx/conf.d/default.conf
       - ./pv-data/uploads:/videos
     depends_on:
       - web
     ports:
-      - "127.0.0.1:11000:80"
+      - "0.0.0.0:11000:80"
 
   # api-gpu:
   #   image: ${DOCKER_REGISTY}/scenespark-api:${API_TAG}

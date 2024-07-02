@@ -97,7 +97,8 @@ API details will be provided soon. Stay tuned for updates.
 - [] **RAG**
 - [] **Microservices Architecture**
     - Frontend built with React
-    - docker-compose.yml
+    - [x] docker-compose.yml
+    - Add entry point for custom prompt support.
 - [x] **On-Premise Deployment**
     - Github CI
 - [] **GPU accelerated**
