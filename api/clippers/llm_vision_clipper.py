@@ -46,14 +46,12 @@ class LLMVisionClipper(BaseClipper):
         except orjson.JSONDecodeError as e:
             logger.warning("llm doesn't return JSON, it returns: %s", str(e))
 
-        offset = 0.5  # 0.5 second
+        offset = sample_interval / 2
         for m in imgs_info:
-            idx = int(m["index"]) - 1
-            m['start'] = idx * sample_interval
-            if m['start'] > offset:
-                m['start'] -= offset
-
-            m['end'] = (idx + 1) * sample_interval + offset
+            logger.debug("m: {m}", m=m)
+            img_ts = int(m["index"]) * sample_interval  # image location (seconds)
+            m['start'] = img_ts - offset
+            m['end'] = img_ts + offset
 
         # TODO
         # The current editing approach results in poor audio continuity.

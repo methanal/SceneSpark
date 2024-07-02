@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Upload, Button, Layout, Tag, Descriptions, message } from 'antd';
+import { Upload, Button, Layout, Tag, Descriptions, message, Tabs } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import ReactPlayer from 'react-player';
 import VideoClipList from './components/VideoClipList';
 import { v4 as uuidv4 } from 'uuid';
 
 const { Content, Footer, Header } = Layout;
+const { TabPane } = Tabs;
 
 const App = () => {
   const [videoClips, setVideoClips] = useState([]);
+  const [videoClips2, setVideoClips2] = useState([]);
   const [selectedClip, setSelectedClip] = useState(null);
 
   const pollExtract = async (uniqueID) => {

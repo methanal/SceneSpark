@@ -52,15 +52,17 @@ class BaseClipper(IClipper):
         media = editor.VideoFileClip(self.video_path.as_posix())
 
         for s in segments:
-            start = s['start']
-            end = s['end']
+            start = s['start'] if s['start'] >= 0.0 else 0.0
+            end = s['end'] if s['end'] <= media.duration else media.duration
 
             clip = media.subclip(start, end)
             aud = clip.audio.set_fps(44100)
             clip: editor.VideoClip = clip.without_audio().set_audio(aud)  # type: ignore[no-redef]
             clip: editor.VideoClip = clip.fx(editor.afx.audio_normalize)  # type: ignore[no-redef]
 
-            _name = self.video_path.with_name(f"{self.video_path.stem}_{start}.mp4")
+            _name = self.video_path.with_name(
+                f"{self.video_path.stem}_{start}_{end}.mp4"
+            )
             clip.write_videofile(
                 _name.as_posix(), audio_codec="aac", bitrate=settings.BITRATE
             )
@@ -72,7 +74,8 @@ class BaseClipper(IClipper):
         media.close()
 
     def pickle_segments_json(self, obj: List, name: str) -> None:
-        with open(f'{name}.pkl', 'wb') as f:
+        p = self.video_path.parent / f'{name}.pkl'
+        with open(p, 'wb') as f:
             pickle.dump(obj, f)
 
     def mark_complete(self, suffix: str = '') -> None:
