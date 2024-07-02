@@ -25,12 +25,13 @@ SceneSpark backend API.
 
 ## Features
 
-- 🔜 **Subtitle Clipper**: Extracts key scenes based on subtitle analysis.
-- 🔜  **(Coming Soon) LLM CV Clipper**: Uses large language models for computer vision-based clipping.
-- 🚧 **(Coming Soon) OCR Clipper**: Extracts scenes based on text recognition from video frames.
-- 🚧 **(Coming Soon) RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
-- 🔜  **(Coming Soon) Microservices Architecture**: Frontend and backend services are decoupled and deployed using Docker Compose for seamless integration and scalability.
-- 🔜  (Coming Soon) On-Premise Deployment: Easily deploy on your own physical servers or data centers for enhanced security and privacy.
+- 🎉 **Subtitle Clipper**: Extracts key scenes based on subtitle analysis.
+- 🎉 **LLM CV Clipper**: Uses large language models for computer vision-based clipping.
+- 🎉 **Microservices Architecture**: Frontend and backend services are decoupled and deployed using Docker Compose for seamless integration and scalability.
+- 🎉 **On-Premise Deployment**: Easily deploy on your own physical servers or data centers for enhanced security and privacy.
+- 🔜 **(Coming Soon) Multi-LLM Integration**: Import multiple LLM, including self-hosted.
+- 🚧 **RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
+- 🚧 **OCR Clipper**: Extracts scenes based on text recognition from video frames.
 
 ## Acknowledgements
 
@@ -88,12 +89,12 @@ API details will be provided soon. Stay tuned for updates.
 - [x] **Subtitle Clipper**
     - ~~subtitle clipper~~
     - ~~Refactor the LLM prompt: The LLM should return a JSON object that includes subtitle indices and extracts. Each extract should contain tags and a description.~~
-    - Implement the /api/v1/clips/subtitle_clipper/{request\_id} API endpoint to retrieve results for a specific request_id. The response should be a JSON object that includes the start and end times of the clip, the relative path where the clip is stored, and the clip’s tags and description.
-    - Refactor the frontend, remove the “Extract” and “View Results” buttons, using AJAX to dynamically fetch results instead.
-    - Update the frontend, load video files of clips within a list component, displaying their associated tags and descriptions.
+    - ~~Implement the /api/v1/clips/subtitle_clipper/{request\_id} API endpoint to retrieve results for a specific request_id. The response should be a JSON object that includes the start and end times of the clip, the relative path where the clip is stored, and the clip’s tags and description.~~
+    - ~~Refactor the frontend, remove the “Extract” and “View Results” buttons, using AJAX to dynamically fetch results instead.~~
+    - ~~Update the frontend, load video files of clips within a list component, displaying their associated tags and descriptions.~~
     - Refactor the API and OpenAPI documentation to include Request and Response schemas.
     - Large Whisper model
-- [] **LLM CV Clipper**
+- [x] **LLM CV Clipper**
     - ~~Single image recognition~~
     - ~~Multiple image recognition~~
     - ~~Consecutive image sequence recognition~~
@@ -107,12 +108,13 @@ API details will be provided soon. Stay tuned for updates.
     - Upload multiple video
     - multi-round clipping
     - token evaluator
-- [] **OCR Clipper**
-- [] **RAG**
 - [] **Microservices Architecture**
     - Frontend built with React
     - docker-compose.yml
+- 🔜 **Multi-LLM Integration**: Import multiple LLM, including self-hosted.
 - [] **On-Premise Deployment**
+- [] **RAG**
+- [] **OCR Clipper**
 
 ## FAQ
 

@@ -115,7 +115,7 @@ const App = () => {
       </Header>
       <Content style={{ padding: '20px' }}>
         <Tabs defaultActiveKey="1">
-          <TabPane tab="LLM SRTS" key="1">
+          <TabPane tab="Whisper" key="1">
             <VideoClipList videoClips={videoClips} onClipClick={handleClipClick} />
             {selectedClip && (
               <div style={{ marginTop: '20px' }}>
@@ -134,7 +134,7 @@ const App = () => {
               </div>
             )}
           </TabPane>
-          <TabPane tab="LLM SRTS 2" key="2">
+          <TabPane tab="LLM Vision" key="2">
             <VideoClipList videoClips={videoClips2} onClipClick={handleClipClick} />
             {selectedClip && (
               <div style={{ marginTop: '20px' }}>

@@ -51,6 +51,7 @@ class SubtitleClipper(BaseClipper):
             sub = subs[int(s["index"]) - 1]
             s['start'] = sub.start.total_seconds()
             s['end'] = sub.end.total_seconds()
+            s['subtitle'] = sub
 
         self.store_clips(llm_srts)
         self.pickle_segments_json(obj=llm_srts, name='llm_srts')
