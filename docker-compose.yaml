@@ -1,14 +1,15 @@
 name: scenespark
-version: '3.1'
 services:
   api:
     image: ${DOCKER_REGISTY}/scenespark-api:${API_TAG}
+    platform: linux/amd64
     restart: always
     volumes:
       - ./api/.env:/app/.env
 
   web:
     image: ${DOCKER_REGISTY}/scenespark-web:${WEB_TAG}
+    platform: linux/amd64
     restart: always
     volumes:
       - ./web/nginx/default.conf:/etc/nginx/conf.d/default.conf
@@ -17,6 +18,7 @@ services:
 
   nginx:
     image: nginx:latest
+    platform: linux/amd64
     volumes:
       - ./nginx/scenespark.conf:/etc/nginx/conf.d/default.conf
       # - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
