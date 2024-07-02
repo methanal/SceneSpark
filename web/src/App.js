@@ -22,8 +22,27 @@ const App = () => {
         if (extractResponse.ok) {
           const extractResult = await extractResponse.json();
 
-          if (extractResult.msg === 'done' && extractResult.llm_srts && extractResult.llm_srts.length > 0) {
+          if (extractResult.msg === 'done') {
+            if (extractResult.llm_srts && extractResult.llm_srts.length > 0) {
+              setVideoClips(extractResult.llm_srts.map(item => ({
+                ...item,
+                url: item.file_path,
+                tags: item.tags || [],
+                description: item.description || '',
+              })));
+            }
+
+            if (extractResult.imgs_info && extractResult.imgs_info.length > 0) {
+              setVideoClips2(extractResult.imgs_info.map(item => ({
+                ...item,
+                url: item.file_path,
+                tags: item.tags || [],
+                description: item.description || '',
+              })));
+            }
+
             setVideoClips(extractResult.llm_srts.map(item => ({
+              ...item,
               url: item.file_path,
               tags: item.tags || [],
               description: item.description || ''
@@ -93,20 +112,46 @@ const App = () => {
         </Upload>
       </Header>
       <Content style={{ padding: '20px' }}>
-        <VideoClipList videoClips={videoClips} onClipClick={handleClipClick} />
-        {selectedClip && (
-          <div style={{ marginTop: '20px' }}>
-            <ReactPlayer url={selectedClip.url} controls />
-            <Descriptions title="Video Clip Details" bordered>
-              <Descriptions.Item label="Description">{selectedClip.description}</Descriptions.Item>
-              <Descriptions.Item label="Tags">
-                {selectedClip.tags.map(tag => (
-                  <Tag key={tag}>{tag}</Tag>
-                ))}
-              </Descriptions.Item>
-            </Descriptions>
-          </div>
-        )}
+        <Tabs defaultActiveKey="1">
+          <TabPane tab="LLM SRTS" key="1">
+            <VideoClipList videoClips={videoClips} onClipClick={handleClipClick} />
+            {selectedClip && (
+              <div style={{ marginTop: '20px' }}>
+                <ReactPlayer url={selectedClip.url} controls />
+                <Descriptions title="Video Clip Details" bordered>
+                  <Descriptions.Item label="Description">{selectedClip.description}</Descriptions.Item>
+                  <Descriptions.Item label="Tags">
+                    {selectedClip.tags.map(tag => (
+                      <Tag key={tag}>{tag}</Tag>
+                    ))}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="JSON">
+                    <pre>{JSON.stringify(selectedClip, null, 2)}</pre>
+                  </Descriptions.Item>
+                </Descriptions>
+              </div>
+            )}
+          </TabPane>
+          <TabPane tab="LLM SRTS 2" key="2">
+            <VideoClipList videoClips={videoClips2} onClipClick={handleClipClick} />
+            {selectedClip && (
+              <div style={{ marginTop: '20px' }}>
+                <ReactPlayer url={selectedClip.url} controls />
+                <Descriptions title="Video Clip Details" bordered>
+                  <Descriptions.Item label="Description">{selectedClip.description}</Descriptions.Item>
+                  <Descriptions.Item label="Tags">
+                    {selectedClip.tags.map(tag => (
+                      <Tag key={tag}>{tag}</Tag>
+                    ))}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="JSON">
+                    <pre>{JSON.stringify(selectedClip, null, 2)}</pre>
+                  </Descriptions.Item>
+                </Descriptions>
+              </div>
+            )}
+          </TabPane>
+        </Tabs>
       </Content>
       <Footer style={{ textAlign: 'center' }}>
         SceneSpark ©2024 Created by methanal

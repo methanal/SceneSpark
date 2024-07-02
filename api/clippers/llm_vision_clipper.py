@@ -60,7 +60,7 @@ class LLMVisionClipper(BaseClipper):
         # To fix this, use subtitle timing correction.
         self.store_clips(imgs_info)
         self.pickle_segments_json(obj=imgs_info, name='imgs_info')
-        self.mark_complete()
+        self.mark_complete(suffix='llm_vision_clipper')
 
         return imgs_info
 
