@@ -75,6 +75,6 @@ class BaseClipper(IClipper):
         with open(f'{name}.pkl', 'wb') as f:
             pickle.dump(obj, f)
 
-    def mark_complete(self) -> None:
-        p = self.video_path.parent / 'clip_complete'
+    def mark_complete(self, suffix: str = '') -> None:
+        p = self.video_path.parent / f'clip_complete.{suffix}'
         p.touch()

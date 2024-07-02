@@ -77,14 +77,26 @@ async def upload_files(
     response_class=ORJSONResponse,
 )
 async def extract(background_tasks: BackgroundTasks, request_id: str):
-    mark_file = Path(f"{settings.UPLOAD_BASE_PATH}/{request_id}/clip_complete")
-    if mark_file.is_file() and mark_file.exists():
-        with open('llm_srts.pkl', 'rb') as f:
-            llm_srts = pickle.load(f)  # nosec
+    resp = {"msg": "not ready yet"}
 
-            return {"msg": "done", 'llm_srts': llm_srts}
+    def is_ready(suffix: str, pickle_name: str) -> bool:
+        mark_file = Path(
+            f"{settings.UPLOAD_BASE_PATH}/{request_id}/clip_complete.{suffix}"
+        )
+        if mark_file.is_file() and mark_file.exists():
+            with open(pickle_name, 'rb') as f:
+                llm_srts = pickle.load(f)  # nosec
+                resp[pickle_name] = llm_srts
+                return True
 
-    return {"msg": "not ready yet"}
+        return False
+
+    if is_ready('subtitle_clipper', 'llm_srts') and is_ready(
+        'llm_vision_clipper', 'imgs_info'
+    ):
+        resp["msg"] = "done"
+
+    return resp
 
 
 @router.get("/api/v1/download/{request_id}/{file_name}")

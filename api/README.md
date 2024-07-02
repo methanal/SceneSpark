@@ -92,6 +92,7 @@ API details will be provided soon. Stay tuned for updates.
     - Refactor the frontend, remove the “Extract” and “View Results” buttons, using AJAX to dynamically fetch results instead.
     - Update the frontend, load video files of clips within a list component, displaying their associated tags and descriptions.
     - Refactor the API and OpenAPI documentation to include Request and Response schemas.
+    - Large Whisper model
 - [] **LLM CV Clipper**
     - ~~Single image recognition~~
     - ~~Multiple image recognition~~

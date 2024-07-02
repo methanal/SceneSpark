@@ -90,10 +90,7 @@ API details will be provided soon. Stay tuned for updates.
 ## Roadmap
 
 - [x] **Subtitle Clipper**
-    - Implement the /api/v1/clips/subtitle_clipper/{request\_id} API endpoint to retrieve results for a specific request_id. The response should be a JSON object that includes the start and end times of the clip, the relative path where the clip is stored, and the clip’s tags and description.
-- [] **LLM CV Clipper**
-    - Compress sampled frames to minimize token usage and submit more frames per request.
-    - Finalize the LLM prompt to extract key frames from consecutive frames, returning a JSON object. The JSON should include relevant data extracted from the frames.
+- [x] **LLM CV Clipper**
     - Use subtitles to assist in correcting video editing
     - Tags extraction: https://github.com/PaddlePaddle/PaddleVideo/tree/develop/applications/VideoTag
 - [] **OCR Clipper**
@@ -101,7 +98,8 @@ API details will be provided soon. Stay tuned for updates.
 - [] **Microservices Architecture**
     - Frontend built with React
     - docker-compose.yml
-- [] **On-Premise Deployment**
+- [x] **On-Premise Deployment**
+    - Github CI
 - [] **GPU accelerated**
 
 ## FAQ
