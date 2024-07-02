@@ -54,7 +54,7 @@ class SubtitleClipper(BaseClipper):
 
         self.store_clips(llm_srts)
         self.pickle_segments_json(obj=llm_srts, name='llm_srts')
-        self.mark_complete()
+        self.mark_complete(suffix='subtitle_clipper')
 
         return llm_srts
 
