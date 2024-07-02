@@ -46,7 +46,7 @@ def llm_pick_imgs(
         return {'picked': []}
 
     usage = orjson.loads(response.original_result)['usage']
-    logger.info("LLM usage: %s", usage)
+    logger.info("LLM usage: {usage}", usage=usage)
 
     return response.content
 

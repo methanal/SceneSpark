@@ -83,8 +83,11 @@ async def extract(background_tasks: BackgroundTasks, request_id: str):
         mark_file = Path(
             f"{settings.UPLOAD_BASE_PATH}/{request_id}/clip_complete.{suffix}"
         )
+        pickle_file = Path(
+            f"{settings.UPLOAD_BASE_PATH}/{request_id}/{pickle_name}.pkl"
+        )
         if mark_file.is_file() and mark_file.exists():
-            with open(pickle_name, 'rb') as f:
+            with open(pickle_file, 'rb') as f:
                 llm_srts = pickle.load(f)  # nosec
                 resp[pickle_name] = llm_srts
                 return True
