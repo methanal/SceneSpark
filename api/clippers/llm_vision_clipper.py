@@ -39,12 +39,14 @@ class LLMVisionClipper(BaseClipper):
         encode_frames = self.sample_frames(interval=sample_interval, save_image=True)
 
         _imgs_json = llm_pick_imgs(self.llm_client, prompt, data_list=encode_frames)
+        logger.debug("llm vision resp raw:{_imgs_json}", _imgs_json=_imgs_json)
 
         try:
             imgs_info = orjson.loads(_imgs_json)
             imgs_info = imgs_info['picked']
         except orjson.JSONDecodeError as e:
             logger.warning("llm doesn't return JSON, it returns: %s", str(e))
+            return []
 
         offset = sample_interval / 2
         for m in imgs_info:
@@ -56,9 +58,10 @@ class LLMVisionClipper(BaseClipper):
         # TODO
         # The current editing approach results in poor audio continuity.
         # To fix this, use subtitle timing correction.
-        self.store_clips(imgs_info)
-        self.pickle_segments_json(obj=imgs_info, name='imgs_info')
-        self.mark_complete(suffix='llm_vision_clipper')
+        if imgs_info:
+            self.store_clips(imgs_info)
+            self.pickle_segments_json(obj=imgs_info, name='imgs_info')
+            self.mark_complete(suffix='llm_vision_clipper')
 
         return imgs_info
 

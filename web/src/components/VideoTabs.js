@@ -34,9 +34,7 @@ const VideoTabs = ({ videoClips, videoClips2 }) => {
                     ))}
                   </Descriptions.Item>
                   <Descriptions.Item label="JSON">
-                    <div style={{ maxHeight: '200px', overflow: 'auto' }}>
-                      <pre>{JSON.stringify(selectedClip1, null, 2)}</pre>
-                    </div>div>
+                    <pre>{JSON.stringify(selectedClip1, null, 2)}</pre>
                   </Descriptions.Item>
                 </Descriptions>
               </div>
@@ -59,9 +57,7 @@ const VideoTabs = ({ videoClips, videoClips2 }) => {
                     ))}
                   </Descriptions.Item>
                   <Descriptions.Item label="JSON">
-                    <div style={{ maxHeight: '200px', overflow: 'auto' }}>
-                      <pre>{JSON.stringify(selectedClip2, null, 2)}</pre>
-                    </div>div>
+                    <pre>{JSON.stringify(selectedClip2, null, 2)}</pre>
                   </Descriptions.Item>
                 </Descriptions>
               </div>

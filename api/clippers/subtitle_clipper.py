@@ -45,7 +45,8 @@ class SubtitleClipper(BaseClipper):
             llm_srts = orjson.loads(_srts_json)
             llm_srts = llm_srts['picked']
         except orjson.JSONDecodeError as e:
-            logger.warning("llm doesn't return JSON, it returns: %s", str(e))
+            logger.warning("llm doesn't return JSON, it returns: {e}", e=str(e))
+            return []
 
         for s in llm_srts:
             sub = subs[int(s["index"]) - 1]
@@ -53,15 +54,18 @@ class SubtitleClipper(BaseClipper):
             s['end'] = sub.end.total_seconds()
             s['subtitle'] = sub
 
-        self.store_clips(llm_srts)
-        self.pickle_segments_json(obj=llm_srts, name='llm_srts')
-        self.mark_complete(suffix='subtitle_clipper')
+        if llm_srts:
+            self.store_clips(llm_srts)
+            self.pickle_segments_json(obj=llm_srts, name='llm_srts')
+            self.mark_complete(suffix='subtitle_clipper')
 
         return llm_srts
 
     def __transcribe_srt(self):
         if not is_video(self.video_path):
-            logger.warning(f"{self.video_path} isn't a valid video.")  # noqa: G004
+            logger.warning(
+                "{video_path} isn't a valid video.", video_path=self.video_path
+            )
 
         transcriber = Transcribe(self.autocut_args)
 
@@ -73,7 +77,7 @@ class SubtitleClipper(BaseClipper):
 
         subs = transcriber.whisper_model.gen_srt(transcribe_results)
         srts = srt.compose(subs)
-        logger.debug(f"{srts}")  # noqa: G004
+        logger.debug("{srts}", srts=srts)
         return subs, srts
 
     @staticmethod
@@ -122,7 +126,7 @@ class SubtitleClipper(BaseClipper):
             merge_filename.as_posix(), audio_codec="aac", bitrate=bitrate
         )
 
-        logger.info(f"Saved merged video to {merge_filename}")  # noqa: G004
+        logger.info("Saved merged video to {filename}", filename=merge_filename)
 
 
 if __name__ == "__main__":

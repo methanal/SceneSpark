@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, message } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import TextAreaUpload from './components/TextAreaUpload';
@@ -9,72 +9,73 @@ const { Content, Footer, Header } = Layout;
 const App = () => {
   const [videoClips, setVideoClips] = useState([]);
   const [videoClips2, setVideoClips2] = useState([]);
-  const [selectedClip, setSelectedClip] = useState(null);
   const uniqueID = uuidv4();
+  const POLL_INTERVAL = 5000; // 每5秒轮询一次
+  const TIMEOUT = 60000; // 总超时时间 10 分钟
 
-  const pollExtract = async (uniqueID) => {
-    const timeout = 1800000; // 总超时时间 30 分钟
-    const pollInterval = 4000; // 每5秒轮询一次
-    const endTime = Date.now() + timeout;
+  const pollData = async (fetchFunction, setDataFunction, id, dataKey) => {
+    const endTime = Date.now() + TIMEOUT;
+    let hasFetched = false;
 
-    const poll = async (resolve, reject) => {
+    const poll = async () => {
       try {
-        const extractResponse = await fetch(`/api/v1/extract/${uniqueID}`);
-        if (extractResponse.ok) {
-          const extractResult = await extractResponse.json();
+        const response = await fetchFunction(id);
+        if (response.ok) {
+          const result = await response.json();
 
-          if (extractResult.msg === 'done') {
-            if (extractResult.llm_srts && extractResult.llm_srts.length > 0) {
-              setVideoClips(extractResult.llm_srts.map(item => ({
+          if (result.msg === 'done') {
+            if (result[dataKey] && result[dataKey].length > 0) {
+              setDataFunction(result[dataKey].map(item => ({
                 ...item,
                 url: item.file_path,
                 tags: item.tags || [],
                 description: item.description || '',
               })));
+              hasFetched = true; // 成功获取数据后停止轮询
+              return;
             }
-
-            if (extractResult.imgs_info && extractResult.imgs_info.length > 0) {
-              setVideoClips2(extractResult.imgs_info.map(item => ({
-                ...item,
-                url: item.file_path,
-                tags: item.tags || [],
-                description: item.description || '',
-              })));
-            }
-
-            setVideoClips(extractResult.llm_srts.map(item => ({
-              ...item,
-              url: item.file_path,
-              tags: item.tags || [],
-              description: item.description || ''
-            })));
-            message.info('Extraction completed successfully.');
-            return resolve();
-          } else if (Date.now() >= endTime) {
-            message.error('Polling timed out.');
-            return reject(new Error('Polling timed out.'));
-          }
+          }  // no else
         } else {
-          message.error('Extraction failed');
-          return reject(new Error('Extraction failed'));
+          message.error('Failed to fetch data');
         }
       } catch (error) {
         console.error('Polling error:', error);
-        return reject(error);
+        message.error('Polling error');
       }
 
-      setTimeout(() => poll(resolve, reject), pollInterval);
+      if (Date.now() < endTime && !hasFetched) {
+        setTimeout(poll, POLL_INTERVAL);
+      } else if (!hasFetched) {
+        message.error('Polling timed out');
+      }
     };
 
-    return new Promise(poll);
+    await poll();
   };
 
-  const handleClipClick = (clip) => {
-    setSelectedClip(clip);
+  const fetchDataForTab1 = async (id) => {
+    return fetch(`/api/v1/extract/${id}/llm_srts`);
   };
 
-  const handleUploadSuccess = async (uniqueID) => {
-    await pollExtract(uniqueID);
+  const fetchDataForTab2 = async (id) => {
+    return fetch(`/api/v1/extract/${id}/imgs_info`);
+  };
+
+  useEffect(() => {
+    pollData(fetchDataForTab1, setVideoClips, uniqueID, 'llm_srts')
+      .catch(error => console.error('Tab 1 polling error:', error));
+
+    pollData(fetchDataForTab2, setVideoClips2, uniqueID, 'imgs_info')
+      .catch(error => console.error('Tab 2 polling error:', error));
+  }, [uniqueID]);
+
+  const handleUploadSuccess = async (id) => {
+    try {
+      await pollData(fetchDataForTab1, setVideoClips, id, 'llm_srts');
+      await pollData(fetchDataForTab2, setVideoClips2, id, 'imgs_info');
+    } catch (error) {
+      console.error('Upload success polling error:', error);
+    }
   };
 
   return (
@@ -83,14 +84,10 @@ const App = () => {
         <h1 style={{ color: 'white' }}>SceneSpark</h1>h1>
       </Header>
       <Content style={{ padding: '20px' }}>
-        <TextAreaUpload uniqueID={uniqueID}
-          onUploadSuccess={handleUploadSuccess}
-        />
+        <TextAreaUpload uniqueID={uniqueID} onUploadSuccess={handleUploadSuccess} />
         <VideoTabs
           videoClips={videoClips}
           videoClips2={videoClips2}
-          onClipClick={handleClipClick}
-          selectedClip={selectedClip}
         />
       </Content>
       <Footer style={{ textAlign: 'center' }}>
