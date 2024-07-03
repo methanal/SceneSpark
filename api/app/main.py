@@ -10,6 +10,7 @@ from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from app.__version__ import __version__
 from app.internal import healthz
 from app.libs.config import settings
+from app.prompts import prompts
 from app.uploads import uploads
 from utils.sentry import sentry_sdk  # noqa: F401
 
@@ -39,6 +40,7 @@ app.add_middleware(
 
 app.include_router(healthz.router)
 app.include_router(uploads.router)
+app.include_router(prompts.router)
 
 app.mount("/videos", StaticFiles(directory=settings.UPLOAD_BASE_PATH), name="videos")
 
