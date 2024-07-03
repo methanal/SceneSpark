@@ -43,9 +43,12 @@ async def upload_files(
     background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(description="source video files."),  # noqa: B008
     request_id: Optional[str] = Form(None),  # noqa: B008
-    prompt1: Optional[str] = Form(None),  # noqa: B008
-    prompt2: Optional[str] = Form(None),  # noqa: B008
+    subtitle_prompt: Optional[str] = Form(None),  # noqa: B008
+    vision_prompt: Optional[str] = Form(None),  # noqa: B008
 ):
+    logger.info("subtitle_prompt: {subtitle_prompt}", subtitle_prompt=subtitle_prompt)
+    logger.info("vision_prompt: {vision_prompt}", vision_prompt=vision_prompt)
+
     output_dir = Path(f"{settings.UPLOAD_BASE_PATH}/{request_id}")
     output_dir.mkdir(parents=True, exist_ok=True)
     purge_dir(output_dir)
@@ -60,17 +63,15 @@ async def upload_files(
         # subtitle_prompt = PROMPT_PICK_SUBTITLE_RETURN_JSON.format(
         #     selection_ratio=settings.LLM_SUBTITLE_SELECTION_RATIO
         # )
-        subtitle_prompt = prompt1
         background_tasks.add_task(
             bg_subtitle_clipper, video_path=fout_path, prompt=subtitle_prompt
         )
 
-        # video_prompt = PROMPT_PICK_IMG_RETURN_JSON.format(
+        # vision_prompt = PROMPT_PICK_IMG_RETURN_JSON.format(
         #     selection_ratio=settings.LLM_VIDEO_SELECTION_RATIO
         # )
-        video_prompt = prompt2
         background_tasks.add_task(
-            bg_llm_vision_clipper, video_path=fout_path, prompt=video_prompt
+            bg_llm_vision_clipper, video_path=fout_path, prompt=vision_prompt
         )
 
     return {"message": "Files uploaded successfully", "request_id": request_id}

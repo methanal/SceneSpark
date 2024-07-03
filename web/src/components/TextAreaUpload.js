@@ -66,7 +66,7 @@ const TextAreaUpload = ({ uniqueID, onUploadSuccess }) => {
               value={text1}
               onChange={(e) => setText1(e.target.value)}
               placeholder="Input text here..."
-              autoSize={{ minRows: 4, maxRows: 10 }}
+              autoSize={{ minRows: 10, maxRows: 20 }}
               style={{ width: '100%' }}
             />
           </Card>
@@ -77,7 +77,7 @@ const TextAreaUpload = ({ uniqueID, onUploadSuccess }) => {
               value={text2}
               onChange={(e) => setText2(e.target.value)}
               placeholder="Input text here..."
-              autoSize={{ minRows: 4, maxRows: 10 }}
+              autoSize={{ minRows: 10, maxRows: 20 }}
               style={{ width: '100%' }}
             />
           </Card>
