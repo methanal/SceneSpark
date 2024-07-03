@@ -24,7 +24,7 @@ async def prompts(request_id: str):
     subtitle_prompt = PROMPT_PICK_SUBTITLE_RETURN_JSON.format(
         selection_ratio=settings.LLM_SUBTITLE_SELECTION_RATIO
     )
-    video_prompt = PROMPT_PICK_IMG_RETURN_JSON.format(
+    vision_prompt = PROMPT_PICK_IMG_RETURN_JSON.format(
         selection_ratio=settings.LLM_VIDEO_SELECTION_RATIO
     )
-    return {'prompt1': subtitle_prompt, "prompt2": video_prompt}
+    return {'subtitle_prompt': subtitle_prompt, "vision_prompt": vision_prompt}

@@ -13,8 +13,8 @@ const TextAreaUpload = ({ uniqueID, onUploadSuccess }) => {
       const response = await fetch(`/api/v1/prompts/${uniqueID}`);
       if (response.ok) {
         const result = await response.json();
-        setText1(result.prompt1);
-        setText2(result.prompt2);
+        setText1(result.subtitle_prompt);
+        setText2(result.vision_prompt);
       } else {
         message.error('Failed to fetch prompts');
       }
@@ -28,8 +28,8 @@ const TextAreaUpload = ({ uniqueID, onUploadSuccess }) => {
     const { file, onSuccess, onError } = options;
     const formData = new FormData();
     formData.append('files', file);
-    formData.append('prompt1', text1);
-    formData.append('prompt2', text2);
+    formData.append('subtitle_prompt', text1);
+    formData.append('vision_prompt', text2);
     formData.append('request_id', uniqueID);
 
     try {
@@ -61,23 +61,23 @@ const TextAreaUpload = ({ uniqueID, onUploadSuccess }) => {
     <>
       <Row gutter={16} style={{ marginBottom: '16px' }}>
         <Col span={12}>
-          <Card title="Prompt 1">
+          <Card title="Subtitle Prompt">
             <TextArea
               value={text1}
               onChange={(e) => setText1(e.target.value)}
               placeholder="Input text here..."
-              autoSize={{ minRows: 4, maxRows: 10 }}
+              autoSize={{ minRows: 10, maxRows: 20 }}
               style={{ width: '100%' }}
             />
           </Card>
         </Col>
         <Col span={12}>
-          <Card title="Prompt 2">
+          <Card title="LLM Vision Prompt">
             <TextArea
               value={text2}
               onChange={(e) => setText2(e.target.value)}
               placeholder="Input text here..."
-              autoSize={{ minRows: 4, maxRows: 10 }}
+              autoSize={{ minRows: 10, maxRows: 20 }}
               style={{ width: '100%' }}
             />
           </Card>

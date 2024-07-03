@@ -24,8 +24,7 @@ PROMPT_PICK_SUBTITLE_RETURN_JSON = """我将提供一篇的字幕文件，
 }}
 """
 PROMPT_IMGS_SUMMARY = "这几张图片描述了什么故事？"
-PROMPT_PICK_IMG_RETURN_JSON = """
-我将提供很多张截图，这些截图来自同一视频文件。
+PROMPT_PICK_IMG_RETURN_JSON = """我将提供很多张截图，这些截图来自同一视频文件。
 
 你需要根据这些截图，做如下事情：
 1. 理解和分析剧情
