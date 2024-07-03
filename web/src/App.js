@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import { Upload, Button, Layout, Tag, Descriptions, message, Tabs } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
-import ReactPlayer from 'react-player';
-import VideoClipList from './components/VideoClipList';
+import { Layout, message } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
+import TextAreaUpload from './components/TextAreaUpload';
+import VideoTabs from './components/VideoTabs';
 
 const { Content, Footer, Header } = Layout;
-const { TabPane } = Tabs;
 
 const App = () => {
   const [videoClips, setVideoClips] = useState([]);
   const [videoClips2, setVideoClips2] = useState([]);
   const [selectedClip, setSelectedClip] = useState(null);
+  const uniqueID = uuidv4();
 
   const pollExtract = async (uniqueID) => {
     const timeout = 1800000; // 总超时时间 30 分钟
@@ -69,91 +68,30 @@ const App = () => {
 
     return new Promise(poll);
   };
-  const handleUpload = async (options) => {
-    const { file, onSuccess, onError } = options;
-    const formData = new FormData();
-    formData.append('files', file);
-
-    const uniqueID = uuidv4();
-    formData.append('request_id', uniqueID);
-
-    try {
-      const response = await fetch('/api/v1/upload', {
-        method: 'POST',
-        body: formData
-      });
-
-      console.log('Response status:', response.status);
-
-      if (response.ok || response.status === 202) {
-        await pollExtract(uniqueID);
-        onSuccess("ok");
-      } else {
-        onError('上传失败');
-        message.error('上传失败1');
-      }
-    } catch (error) {
-      onError(error);
-      message.error('上传失败2');
-    }
-  };
 
   const handleClipClick = (clip) => {
     setSelectedClip(clip);
   };
 
+  const handleUploadSuccess = async (uniqueID) => {
+    await pollExtract(uniqueID);
+  };
+
   return (
     <Layout>
       <Header>
-        <Upload
-          accept="video/*"
-          customRequest={handleUpload}
-          multiple
-        >
-          <Button icon={<UploadOutlined />}>Upload Video</Button>
-        </Upload>
+        <h1 style={{ color: 'white' }}>SceneSpark</h1>h1>
       </Header>
       <Content style={{ padding: '20px' }}>
-        <Tabs defaultActiveKey="1">
-          <TabPane tab="Whisper" key="1">
-            <VideoClipList videoClips={videoClips} onClipClick={handleClipClick} />
-            {selectedClip && (
-              <div style={{ marginTop: '20px' }}>
-                <ReactPlayer url={selectedClip.url} controls />
-                <Descriptions title="Video Clip Details" bordered>
-                  <Descriptions.Item label="Description">{selectedClip.description}</Descriptions.Item>
-                  <Descriptions.Item label="Tags">
-                    {selectedClip.tags.map(tag => (
-                      <Tag key={tag}>{tag}</Tag>
-                    ))}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="JSON">
-                    <pre>{JSON.stringify(selectedClip, null, 2)}</pre>
-                  </Descriptions.Item>
-                </Descriptions>
-              </div>
-            )}
-          </TabPane>
-          <TabPane tab="LLM Vision" key="2">
-            <VideoClipList videoClips={videoClips2} onClipClick={handleClipClick} />
-            {selectedClip && (
-              <div style={{ marginTop: '20px' }}>
-                <ReactPlayer url={selectedClip.url} controls />
-                <Descriptions title="Video Clip Details" bordered>
-                  <Descriptions.Item label="Description">{selectedClip.description}</Descriptions.Item>
-                  <Descriptions.Item label="Tags">
-                    {selectedClip.tags.map(tag => (
-                      <Tag key={tag}>{tag}</Tag>
-                    ))}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="JSON">
-                    <pre>{JSON.stringify(selectedClip, null, 2)}</pre>
-                  </Descriptions.Item>
-                </Descriptions>
-              </div>
-            )}
-          </TabPane>
-        </Tabs>
+        <TextAreaUpload uniqueID={uniqueID}
+          onUploadSuccess={handleUploadSuccess}
+        />
+        <VideoTabs
+          videoClips={videoClips}
+          videoClips2={videoClips2}
+          onClipClick={handleClipClick}
+          selectedClip={selectedClip}
+        />
       </Content>
       <Footer style={{ textAlign: 'center' }}>
         SceneSpark ©2024 Created by methanal

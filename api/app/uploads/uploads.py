@@ -24,10 +24,10 @@ from app.libs.config import settings
 from utils.tools import purge_dir
 
 # isort: off
-from clippers.prompt.prompt_text import (
-    PROMPT_PICK_IMG_RETURN_JSON,
-    PROMPT_PICK_SUBTITLE_RETURN_JSON,
-)
+# from clippers.prompt.prompt_text import (
+#     PROMPT_PICK_IMG_RETURN_JSON,
+#     PROMPT_PICK_SUBTITLE_RETURN_JSON,
+# )
 
 # isort: on
 
@@ -43,6 +43,8 @@ async def upload_files(
     background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(description="source video files."),  # noqa: B008
     request_id: Optional[str] = Form(None),  # noqa: B008
+    prompt1: Optional[str] = Form(None),  # noqa: B008
+    prompt2: Optional[str] = Form(None),  # noqa: B008
 ):
     output_dir = Path(f"{settings.UPLOAD_BASE_PATH}/{request_id}")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -55,16 +57,18 @@ async def upload_files(
             while content := await f_in.read(1024 * 1024):
                 await f_out.write(content)
 
-        subtitle_prompt = PROMPT_PICK_SUBTITLE_RETURN_JSON.format(
-            selection_ratio=settings.LLM_SUBTITLE_SELECTION_RATIO
-        )
+        # subtitle_prompt = PROMPT_PICK_SUBTITLE_RETURN_JSON.format(
+        #     selection_ratio=settings.LLM_SUBTITLE_SELECTION_RATIO
+        # )
+        subtitle_prompt = prompt1
         background_tasks.add_task(
             bg_subtitle_clipper, video_path=fout_path, prompt=subtitle_prompt
         )
 
-        video_prompt = PROMPT_PICK_IMG_RETURN_JSON.format(
-            selection_ratio=settings.LLM_VIDEO_SELECTION_RATIO
-        )
+        # video_prompt = PROMPT_PICK_IMG_RETURN_JSON.format(
+        #     selection_ratio=settings.LLM_VIDEO_SELECTION_RATIO
+        # )
+        video_prompt = prompt2
         background_tasks.add_task(
             bg_llm_vision_clipper, video_path=fout_path, prompt=video_prompt
         )
