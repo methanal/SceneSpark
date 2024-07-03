@@ -109,8 +109,11 @@ API details will be provided soon. Stay tuned for updates.
     - multi-round clipping
     - token evaluator
 - [] **Microservices Architecture**
-    - Frontend built with React
-    - docker-compose.yml
+    - ~~Frontend built with React~~
+    - ~~docker-compose.yml~~
+- 🔜 **Performance**
+    - Upload speed
+    - Async background task
 - 🔜 **Multi-LLM Integration**: Import multiple LLM, including self-hosted.
 - [] **On-Premise Deployment**
 - [] **RAG**
