@@ -8,6 +8,7 @@ from loguru import logger
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from app.__version__ import __version__
+from app.clips import clips
 from app.internal import healthz
 from app.libs.config import settings
 from app.prompts import prompts
@@ -39,10 +40,13 @@ app.add_middleware(
 )
 
 app.include_router(healthz.router)
-app.include_router(uploads.router)
+app.include_router(clips.router)
 app.include_router(prompts.router)
+app.include_router(uploads.router)
 
-app.mount("/videos", StaticFiles(directory=settings.UPLOAD_BASE_PATH), name="videos")
+app.mount(
+    "/videos/clips", StaticFiles(directory=settings.CLIPS_BASE_PATH), name="videos"
+)
 
 # @app.middleware("http")
 # async def log_request_middleware(request: Request, call_next):

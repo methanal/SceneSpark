@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import sys
+from pathlib import Path
 from pprint import pprint
 from typing import Dict, List, Optional, Union
 
@@ -7,7 +9,10 @@ import orjson
 from loguru import logger
 from ullm import LanguageModel
 
-from app.libs.config import settings
+parent_dir = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(parent_dir))
+
+from app.libs.config import settings  # noqa: E402
 
 
 def initialize_llm_client(llm_provider: str = 'openai'):
@@ -52,7 +57,7 @@ def llm_pick_imgs(
 
 
 if __name__ == "__main__":
-    from prompt_text import PROMPT_IMGS_SUMMARY
+    from clippers.prompt.prompt_text import PROMPT_IMGS_SUMMARY
 
     llm_client = initialize_llm_client()
     content = llm_pick_imgs(
