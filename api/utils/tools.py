@@ -1,6 +1,11 @@
 import base64
+import glob
+import os
+import pickle
 import shutil
 from pathlib import Path
+
+from app.libs.config import settings
 
 
 def encode_image(image_path):
@@ -14,3 +19,46 @@ def purge_dir(_dir: Path):
             shutil.rmtree(item)
         else:
             item.unlink()
+
+
+def ensure_dir(prefix: Path, request_id: str, purge: bool = False):
+    output_dir = prefix / request_id
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    if purge:
+        purge_dir(output_dir)
+
+    return output_dir
+
+
+def load_pickle(request_id: str, suffix: str, pickle_name: str) -> list:
+    pickle_file = Path(f"{settings.UPLOAD_BASE_PATH}/{request_id}/{pickle_name}.pkl")
+    if pickle_file.exists() and pickle_file.is_file():
+        with open(pickle_file, 'rb') as f:
+            return pickle.load(f)  # nosec
+
+    return []
+
+
+def find_video_files(path: Path):
+    extensions = [
+        'mp4',
+        'avi',
+        'mkv',
+        'mov',
+        'flv',
+        'f4v',
+        'wmv',
+        'webm',
+        'mpeg',
+        'mpg',
+    ]
+    extensions = [ext.lower() for ext in extensions] + [
+        ext.upper() for ext in extensions
+    ]
+
+    video_files = []
+    for ext in extensions:
+        video_files.extend(glob.glob(os.path.join(path, f"*.{ext}"), recursive=False))
+
+    return video_files

@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 import orjson
 import srt
 from autocut.transcribe import Transcribe
-from autocut.utils import is_video, load_audio
+from autocut.utils import load_audio
 from loguru import logger
 from moviepy import editor
 
@@ -22,57 +22,49 @@ from clippers.wrappers.llm_wrapper import (  # noqa: E402
 )
 
 # isort: on
+from utils.tools import find_video_files  # noqa: E402
 
 
 class SubtitleClipper(BaseClipper):
-    def __init__(self, autocut_args, video_path: Path):
+    def __init__(self, autocut_args, upload_path: Path):
         super().__init__()
         self.autocut_args = autocut_args
         self.llm_client = initialize_llm_client()
-        self._video_path = video_path
-
-    @property
-    def video_path(self):
-        return self._video_path
+        self.upload_path = upload_path
 
     def extract_clips(self, prompt: str) -> List[Dict]:
-        self.autocut_args.inputs = [self.video_path]
+        llm_srts_list = []
+        for video_file in find_video_files(self.upload_path):
+            video_file = video_file.resolve()
 
-        subs, srts = self.__transcribe_srt()
+            self.autocut_args.inputs = [video_file]
+            subs, srts = self.__transcribe_srt(video_file)
+            _srts_json = llm_pick_srts(self.llm_client, srts, prompt)
+            try:
+                llm_srts = orjson.loads(_srts_json)
+                llm_srts = llm_srts['picked']
+            except orjson.JSONDecodeError as e:
+                logger.warning("llm doesn't return JSON, it returns: {e}", e=str(e))
+                llm_srts_list.append({'source': video_file, 'llm_srts': []})
+                continue
 
-        _srts_json = llm_pick_srts(self.llm_client, srts, prompt)
-        try:
-            llm_srts = orjson.loads(_srts_json)
-            llm_srts = llm_srts['picked']
-        except orjson.JSONDecodeError as e:
-            logger.warning("llm doesn't return JSON, it returns: {e}", e=str(e))
-            return []
+            for s in llm_srts:
+                sub = subs[int(s["index"]) - 1]
+                s['start'] = sub.start.total_seconds()
+                s['end'] = sub.end.total_seconds()
+                s['subtitle'] = sub
 
-        for s in llm_srts:
-            sub = subs[int(s["index"]) - 1]
-            s['start'] = sub.start.total_seconds()
-            s['end'] = sub.end.total_seconds()
-            s['subtitle'] = sub
+            llm_srts_list.append({'source': video_file, 'segments': llm_srts})
 
-        if llm_srts:
-            self.store_clips(llm_srts)
-            self.pickle_segments_json(obj=llm_srts, name='llm_srts')
-            self.mark_complete(suffix='subtitle_clipper')
+        return llm_srts_list
 
-        return llm_srts
-
-    def __transcribe_srt(self):
-        if not is_video(self.video_path):
-            logger.warning(
-                "{video_path} isn't a valid video.", video_path=self.video_path
-            )
-
+    def __transcribe_srt(self, video_file: Path):
         transcriber = Transcribe(self.autocut_args)
 
-        audio = load_audio(self.video_path, sr=transcriber.sampling_rate)
+        audio = load_audio(video_file, sr=transcriber.sampling_rate)
         speech_array_indices = transcriber._detect_voice_activity(audio)
         transcribe_results = transcriber._transcribe(
-            self.video_path, audio, speech_array_indices
+            video_file, audio, speech_array_indices
         )
 
         subs = transcriber.whisper_model.gen_srt(transcribe_results)
@@ -133,11 +125,16 @@ if __name__ == "__main__":
     from app.libs.config import settings
     from clippers.prompt.prompt_text import PROMPT_PICK_SUBTITLE_RETURN_JSON
 
-    video_name = '2.mp4'
+    # video_name = '2.mp4'
     args = SubtitleClipper.gen_args()
-    sub_clipper = SubtitleClipper(args, video_path=Path(video_name))
+    sub_clipper = SubtitleClipper(args, upload_path=Path('.'))
+
     prompt = PROMPT_PICK_SUBTITLE_RETURN_JSON.format(
         selection_ratio=settings.LLM_SUBTITLE_SELECTION_RATIO
     )
+    llm_srts = sub_clipper.extract_clips(prompt=prompt)
 
-    sub_clipper.extract_clips(prompt=prompt)
+    clips_path = Path('.')
+    BaseClipper.store_clips(llm_srts, clips_path)
+    BaseClipper.pickle_segments_json(llm_srts, clips_path)
+    llm_srts = BaseClipper.flatten_clips_result(llm_srts)

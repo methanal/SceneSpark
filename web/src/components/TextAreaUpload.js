@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Input, Button, Upload, message } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Row, Col, Card, Input, Button, message } from 'antd';
 
 const { TextArea } = Input;
 
-const TextAreaUpload = ({ uniqueID, onUploadSuccess }) => {
+const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
   const [text1, setText1] = useState('');
   const [text2, setText2] = useState('');
 
@@ -13,43 +12,14 @@ const TextAreaUpload = ({ uniqueID, onUploadSuccess }) => {
       const response = await fetch(`/api/v1/prompts/${uniqueID}`);
       if (response.ok) {
         const result = await response.json();
-        setText1(result.subtitle_prompt);
-        setText2(result.vision_prompt);
+        setText1(result.subtitle_prompt || '');
+        setText2(result.vision_prompt || '');
       } else {
         message.error('Failed to fetch prompts');
       }
     } catch (error) {
       console.error('Fetch prompts error:', error);
       message.error('Failed to fetch prompts');
-    }
-  };
-
-  const handleUpload = async (options) => {
-    const { file, onSuccess, onError } = options;
-    const formData = new FormData();
-    formData.append('files', file);
-    formData.append('subtitle_prompt', text1);
-    formData.append('vision_prompt', text2);
-    formData.append('request_id', uniqueID);
-
-    try {
-      const response = await fetch('/api/v1/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      console.log('Response status:', response.status);
-
-      if (response.ok || response.status === 202) {
-        await onUploadSuccess(uniqueID);
-        onSuccess("ok");
-      } else {
-        onError('上传失败');
-        message.error('上传失败1');
-      }
-    } catch (error) {
-      onError(error);
-      message.error('上传失败2');
     }
   };
 
@@ -69,6 +39,7 @@ const TextAreaUpload = ({ uniqueID, onUploadSuccess }) => {
               autoSize={{ minRows: 10, maxRows: 20 }}
               style={{ width: '100%' }}
             />
+            <Button onClick={() => handleFetchTab1(text1)} style={{ marginTop: '16px' }}>Extract Data for Tab 1</Button>
           </Card>
         </Col>
         <Col span={12}>
@@ -80,18 +51,8 @@ const TextAreaUpload = ({ uniqueID, onUploadSuccess }) => {
               autoSize={{ minRows: 10, maxRows: 20 }}
               style={{ width: '100%' }}
             />
+            <Button onClick={() => handleFetchTab2(text2)} style={{ marginTop: '16px' }}>Extract Data for Tab 2</Button>
           </Card>
-        </Col>
-      </Row>
-      <Row gutter={16} style={{ marginBottom: '16px' }}>
-        <Col span={24}>
-          <Upload
-            accept="video/*"
-            customRequest={handleUpload}
-            multiple
-          >
-            <Button icon={<UploadOutlined />}>Upload Video</Button>
-          </Upload>
         </Col>
       </Row>
     </>
