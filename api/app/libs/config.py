@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     # but may easily reach GPT-4's token limits (30,000 TPM).
     # Consider adjusting the account's TPM, increasing the sample seconds, or switching to a different LLM.
     VIDEO_SAMPLE_INTERVAL_SECOND: float = 4.0  # seconds
+    LLM_VISION_CLIP_DURATION: float = 4.0  # seconds
 
     VIDEOS_BASE_PATH: str = ''
 

@@ -23,7 +23,12 @@ from utils.tools import find_video_files  # noqa: E402
 
 
 class LLMVisionClipper(BaseClipper):
-    def __init__(self, upload_path: Path, sample_interval: float = 0.0):
+    def __init__(
+        self,
+        upload_path: Path,
+        sample_interval: float = 0.0,
+        clip_duration: float = 0.0,
+    ):
         super().__init__()
         self.llm_client = initialize_llm_client()
         self.upload_path = upload_path
@@ -31,6 +36,9 @@ class LLMVisionClipper(BaseClipper):
             sample_interval
             if sample_interval > 0.0
             else settings.VIDEO_SAMPLE_INTERVAL_SECOND
+        )
+        self.clip_duration = (
+            clip_duration if clip_duration > 0.0 else settings.LLM_VISION_CLIP_DURATION
         )
 
     def extract_clips(self, prompt: str) -> List[Dict]:
@@ -50,7 +58,7 @@ class LLMVisionClipper(BaseClipper):
                 logger.warning("llm doesn't return JSON, it returns: %s", str(e))
                 return []
 
-            offset = self.sample_interval / 2
+            offset = self.clip_duration / 2
             for m in imgs_info:
                 logger.debug("m: {m}", m=m)
                 img_ts = (
