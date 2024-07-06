@@ -34,7 +34,7 @@ SceneSpark is a tool designed to automate the extraction and generation of key s
 - 🎉 **Microservices Architecture**: Frontend and backend services are decoupled and deployed using Docker Compose for seamless integration and scalability.
 - 🔜 **(Coming Soon) Multi-LLM Integration**: Import multiple LLM, including self-hosted.
 - 🔜 **(Coming Soon) GPU accelerated**
-- 🚧 **RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
+- 🚧 **RAG**: Retrieval-Augmented Generation for enhanced scene extraction. Video Distillation, Knowledge Base
 - 🚧 **OCR Clipper**: Extracts scenes based on text recognition from video frames.
 - 🚧 **On-Premise Deployment**: Easily deploy on your own physical servers or data centers for enhanced security and privacy.
 

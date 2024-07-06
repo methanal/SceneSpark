@@ -1,7 +1,8 @@
 from pathlib import Path
 from typing import Dict, Optional, Union
 
-from pydantic_settings import BaseSettings, Field
+from pydantic import field_validator
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -14,9 +15,7 @@ class Settings(BaseSettings):
     # Consider adjusting the account's TPM, increasing the sample seconds, or switching to a different LLM.
     VIDEO_SAMPLE_INTERVAL_SECOND: float = 4.0  # seconds
 
-    VIDEO_BASE_PATH: Path
-    UPLOAD_BASE_PATH: Path = Field(default=None)
-    CLIPS_BASE_PATH: Path = Field(default=None)
+    VIDEOS_BASE_PATH: str = ''
 
     VIDEOS_URI_PREFIX: Path = Path('/videos/clips')
 
@@ -32,12 +31,20 @@ class Settings(BaseSettings):
     OPENAI_BASE_URL: str = ''
     OPENAI_TEMPERATURE: float = 0.4
 
-    def __init__(self, **values):
-        super().__init__(**values)
-        if not self.UPLOAD_BASE_PATH:
-            self.UPLOAD_BASE_PATH = self.VIDEO_BASE_PATH / 'source'
-        if not self.CLIPS_BASE_PATH:
-            self.CLIPS_BASE_PATH = self.VIDEO_BASE_PATH / 'clips'
+    @field_validator('VIDEOS_BASE_PATH')
+    def validate_path(cls, v):
+        path = Path(v)
+        if not path.exists():
+            raise ValueError(f'Path {v} does not exist')
+        return path
+
+    @property
+    def UPLOAD_BASE_PATH(self) -> Path:
+        return Path(self.VIDEOS_BASE_PATH) / 'source'
+
+    @property
+    def CLIPS_BASE_PATH(self) -> Path:
+        return Path(self.VIDEOS_BASE_PATH) / 'clips'
 
     def get_llm_provider_config(self, provider: str) -> Dict[str, Union[str, float]]:
         if provider == 'openai':

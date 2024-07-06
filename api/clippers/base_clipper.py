@@ -62,7 +62,7 @@ class BaseClipper(IClipper):
                 clip: editor.VideoClip = clip.without_audio().set_audio(aud)  # type: ignore[no-redef]
                 clip: editor.VideoClip = clip.fx(editor.afx.audio_normalize)  # type: ignore[no-redef]
 
-                _name = source.with_name(f"{source.stem}_{start}_{end}.mp4")
+                _name = clips_path / f"{source.stem}_{start}_{end}.mp4"
                 clip.write_videofile(
                     _name.as_posix(), audio_codec="aac", bitrate=settings.BITRATE
                 )

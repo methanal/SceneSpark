@@ -4,6 +4,7 @@ import os
 import pickle
 import shutil
 from pathlib import Path
+from typing import List
 
 from app.libs.config import settings
 
@@ -40,7 +41,7 @@ def load_pickle(request_id: str, suffix: str, pickle_name: str) -> list:
     return []
 
 
-def find_video_files(path: Path):
+def find_video_files(path: Path) -> List:
     extensions = [
         'mp4',
         'avi',
@@ -61,4 +62,4 @@ def find_video_files(path: Path):
     for ext in extensions:
         video_files.extend(glob.glob(os.path.join(path, f"*.{ext}"), recursive=False))
 
-    return video_files
+    return [Path(p) for p in video_files]

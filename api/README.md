@@ -30,7 +30,7 @@ SceneSpark backend API.
 - 🎉 **Microservices Architecture**: Frontend and backend services are decoupled and deployed using Docker Compose for seamless integration and scalability.
 - 🎉 **On-Premise Deployment**: Easily deploy on your own physical servers or data centers for enhanced security and privacy.
 - 🔜 **(Coming Soon) Multi-LLM Integration**: Import multiple LLM, including self-hosted.
-- 🚧 **RAG**: Retrieval-Augmented Generation for enhanced scene extraction.
+- 🚧 **RAG**: Retrieval-Augmented Generation for enhanced scene extraction.Video Distillation, Knowledge Base
 - 🚧 **OCR Clipper**: Extracts scenes based on text recognition from video frames.
 
 ## Acknowledgements
@@ -117,6 +117,9 @@ API details will be provided soon. Stay tuned for updates.
 - 🔜 **Multi-LLM Integration**: Import multiple LLM, including self-hosted.
 - [] **On-Premise Deployment**
 - [] **RAG**
+    - Video Distillation: Samples can be taken every half second. First, a local facial recognition model runs through the video, filtering based on provided facial snapshots of main and key characters. The remaining snapshots are then sampled again.
+    - RAG (Context Enhancement for Screenshots): We have subtitles. By correlating sampled screenshots with subtitles, send the corresponding subtitles as context when sending screenshots to the LLM. Additionally, include the entire conversation with subtitles as context each time.
+    - RAG (Knowledge Base): Construct a knowledge base for the entire video or series as RAG. This includes comprehensive subtitles with timestamps and local analysis and annotations from various small models on half-second screenshots.
 - [] **OCR Clipper**
 
 ## FAQ

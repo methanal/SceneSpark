@@ -35,8 +35,6 @@ class SubtitleClipper(BaseClipper):
     def extract_clips(self, prompt: str) -> List[Dict]:
         llm_srts_list = []
         for video_file in find_video_files(self.upload_path):
-            video_file = video_file.resolve()
-
             self.autocut_args.inputs = [video_file]
             subs, srts = self.__transcribe_srt(video_file)
             _srts_json = llm_pick_srts(self.llm_client, srts, prompt)

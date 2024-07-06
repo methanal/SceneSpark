@@ -23,19 +23,23 @@ from utils.tools import find_video_files  # noqa: E402
 
 
 class LLMVisionClipper(BaseClipper):
-    def __init__(self, upload_path: Path):
+    def __init__(self, upload_path: Path, sample_interval: float = 0.0):
         super().__init__()
         self.llm_client = initialize_llm_client()
         self.upload_path = upload_path
+        self.sample_interval = (
+            sample_interval
+            if sample_interval > 0.0
+            else settings.VIDEO_SAMPLE_INTERVAL_SECOND
+        )
 
     def extract_clips(self, prompt: str) -> List[Dict]:
         imgs_info_list = []
         for video_file in find_video_files(self.upload_path):
             video_file = video_file.resolve()
 
-            sample_interval = settings.VIDEO_SAMPLE_INTERVAL_SECOND
             encode_frames = self.sample_frames(
-                video_file=video_file, interval=sample_interval, save_image=True
+                video_file=video_file, interval=self.sample_interval, save_image=True
             )
             _imgs_json = llm_pick_imgs(self.llm_client, prompt, data_list=encode_frames)
             logger.debug("llm vision resp raw:{_imgs_json}", _imgs_json=_imgs_json)
@@ -46,10 +50,12 @@ class LLMVisionClipper(BaseClipper):
                 logger.warning("llm doesn't return JSON, it returns: %s", str(e))
                 return []
 
-            offset = sample_interval / 2
+            offset = self.sample_interval / 2
             for m in imgs_info:
                 logger.debug("m: {m}", m=m)
-                img_ts = int(m["index"]) * sample_interval  # image location (seconds)
+                img_ts = (
+                    int(m["index"]) * self.sample_interval
+                )  # image location (seconds)
                 m['start'] = img_ts - offset
                 m['end'] = img_ts + offset
 
@@ -58,7 +64,7 @@ class LLMVisionClipper(BaseClipper):
         # TODO
         # The current editing approach results in poor audio continuity.
         # To fix this, use subtitle timing correction.
-        return imgs_info
+        return imgs_info_list
 
     def sample_frames(
         self, video_file: Path, interval: float = 5.0, save_image: bool = False
