@@ -1,49 +1,69 @@
 import React, { useState } from 'react';
-import { Button, Layout, message, Upload } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Divider, Layout, message, Upload } from 'antd';
+import { InboxOutlined } from '@ant-design/icons';
 import { v4 as uuidv4 } from 'uuid';
 import TextAreaUpload from './components/TextAreaUpload';
 import VideoTabs from './components/VideoTabs';
 
 const { Content, Footer, Header } = Layout;
+const { Dragger } = Upload;
 
 const App = () => {
   const [videoClips, setVideoClips] = useState([]);
   const [videoClips2, setVideoClips2] = useState([]);
-  const uniqueID = uuidv4();
+  const [uniqueID] = useState(uuidv4());
 
-  const handleUpload = async ({ file, onSuccess, onError }) => {
+  const handleUpload = (file) => {
     const formData = new FormData();
     formData.append('files', file);
     formData.append('request_id', uniqueID);
 
-    try {
-      const response = await fetch('/api/v1/upload', {
-        method: 'POST',
-        body: formData,
+    // 自定义上传请求
+    fetch('/api/v1/upload', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(data => {
+        message.success(`${file.name} file uploaded successfully.`);
+        console.log(data);
+      })
+      .catch(() => {
+        message.error(`${file.name} file upload failed.`);
       });
 
-      if (response.ok) {
-        onSuccess("ok");
-        message.success('Files uploaded successfully');
-      } else {
-        onError('上传失败');
-        message.error('上传失败');
-      }
-    } catch (error) {
-      onError(error);
-      message.error('上传失败');
-    }
+    // 返回 false 以阻止默认上传行为
+    return false;
   };
 
-  const handleFetchTab1 = async (prompt) => {
+  const props = {
+    name: 'file',
+    multiple: true,
+    beforeUpload: handleUpload,
+    onChange(info) {
+      const { status } = info.file;
+      if (status !== 'uploading') {
+        console.log(info.file, info.fileList);
+      }
+      if (status === 'done') {
+        message.success(`${info.file.name} file uploaded successfully.`);
+      } else if (status === 'error') {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+    },
+    onDrop(e) {
+      console.log('Dropped files', e.dataTransfer.files);
+    },
+  };
+
+  const handleFetchTab1 = async (prompt, modelSize) => {
     try {
       const response = await fetch(`/api/v1/clips/extract/llm_srts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ request_id: uniqueID, prompt }),
+        body: JSON.stringify({ request_id: uniqueID, model_size: modelSize, prompt }),
       });
 
       if (response.ok) {
@@ -66,14 +86,14 @@ const App = () => {
     }
   };
 
-  const handleFetchTab2 = async (prompt) => {
+  const handleFetchTab2 = async (prompt, samplingInterval) => {
     try {
       const response = await fetch(`/api/v1/clips/extract/imgs_info`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ request_id: uniqueID, prompt }),
+        body: JSON.stringify({ request_id: uniqueID, sample_interval: samplingInterval, prompt }),
       });
 
       if (response.ok) {
@@ -101,9 +121,17 @@ const App = () => {
       <Header>
       </Header>
       <Content style={{ padding: '20px' }}>
-        <Upload accept="video/*" customRequest={handleUpload} multiple>
-          <Button icon={<UploadOutlined />}>Upload Video</Button>
-        </Upload>
+        <Dragger {...props}>
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined />
+          </p>
+          <p className="ant-upload-text">Click or drag file to this area to upload</p>
+          <p className="ant-upload-hint">
+            Support for a single or bulk upload. Strictly prohibited from uploading company data or other
+            banned files.
+          </p>
+        </Dragger>
+        <Divider />
         <TextAreaUpload
           uniqueID={uniqueID}
           handleFetchTab1={handleFetchTab1}
