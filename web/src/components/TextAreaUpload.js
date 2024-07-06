@@ -47,7 +47,7 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
                   style={{ width: '220px', marginRight: '16px' }}
                 >
                   <Option value="whisper">whisper</Option>
-                  <Option value="openai">Whisper API (large-v2)</Option>Option>
+                  <Option value="openai" disabled>Whisper API (large-v2)</Option>Option>
                   <Option value="faster">faster-whisper (CTranslate2)</Option>Option>
                   <Option value="sense_voice" disabled>SenseVoice</Option>Option>
                 </Select>
