@@ -8,8 +8,10 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
   const [text1, setText1] = useState('');
   const [text2, setText2] = useState('');
   const [samplingInterval, setSamplingInterval] = useState(3);
+  const [clipDuration, setClipDuration] = useState(3);
   const [translationModel, setTranslationModel] = useState('whisper');
   const [modelSize, setModelSize] = useState('small');
+  const modelSizeOptions = translationModel === 'whisper' ? ['small', 'medium'] : [];
 
   const fetchPrompts = async (uniqueID) => {
     try {
@@ -42,19 +44,31 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
                 <Select
                   value={translationModel}
                   onChange={setTranslationModel}
-                  style={{ width: '100px', marginRight: '16px' }}
+                  style={{ width: '220px', marginRight: '16px' }}
                 >
                   <Option value="whisper">whisper</Option>
+                  <Option value="openai">Whisper API (large-v2)</Option>Option>
+                  <Option value="faster">faster-whisper (CTranslate2)</Option>Option>
+                  <Option value="sense_voice" disabled>SenseVoice</Option>Option>
                 </Select>
                 <span style={{ marginRight: '10px' }}>Model Size</span>
                 <Select
                   value={modelSize}
                   onChange={setModelSize}
-                  style={{ width: '260px' }}
+                  style={{ width: '100px' }}
+                  disabled={modelSizeOptions.length === 0}
                 >
-                  <Option value="small">small</Option>
-                  <Option value="medium">medium 效果明显，慢，等 GPU 加速</Option>
-                  <Option value="large-v3" disabled>large-v3 看看就行</Option>
+                  {modelSizeOptions.length > 0 ? (
+                    modelSizeOptions.map(size => (
+                      <Option key={size} value={size}>
+                        {size}
+                      </Option>
+                    ))
+                  ) : (
+                    <Option value="" disabled>
+                      No options
+                    </Option>
+                  )}
                 </Select>
               </div>
             </div>
@@ -65,13 +79,13 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
               autoSize={{ minRows: 10, maxRows: 20 }}
               style={{ width: '100%' }}
             />
-            <Button onClick={() => handleFetchTab1(text1, modelSize)} style={{ marginTop: '16px' }}>Extract Clips</Button>
+            <Button onClick={() => handleFetchTab1(text1, translationModel, modelSize)} style={{ marginTop: '16px' }}>Extract Clips</Button>
           </Card>
         </Col>
         <Col span={12}>
           <Card title="LLM Vision Prompt">
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-              <span style={{ marginRight: '8px' }}>Sampling Interval</span>
+              <span style={{ marginRight: '8px' }}>Sample Interval</span>
               <Input
                 type="number"
                 value={samplingInterval}
@@ -79,7 +93,16 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
                 placeholder="Enter sampling interval"
                 style={{ width: '60px', marginRight: '8px' }}
               />
-              <span>秒</span>
+              <span>seconds</span>
+              <span style={{ marginRight: '8px' }}>Set Clip Duration</span>
+              <Input
+                type="number"
+                value={clipDuration}
+                onChange={(e) => setClipDuration(Number(e.target.value))}
+                placeholder="Enter clip duration"
+                style={{ width: '60px', marginRight: '8px' }}
+              />
+              <span>seconds</span>
             </div>
             <TextArea
               value={text2}
@@ -88,7 +111,7 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
               autoSize={{ minRows: 10, maxRows: 20 }}
               style={{ width: '100%' }}
             />
-            <Button onClick={() => handleFetchTab2(text2, samplingInterval)} style={{ marginTop: '16px' }}>Extract Clips</Button>
+            <Button onClick={() => handleFetchTab2(text2, samplingInterval, clipDuration)} style={{ marginTop: '16px' }}>Extract Clips</Button>
           </Card>
         </Col>
       </Row>
