@@ -29,7 +29,9 @@ router = APIRouter()
 async def load_llm_srts(request: SubtitleClipperRequest):
     logger.info(f"subtitle clipper request: {request.json()}")  # noqa: G004
 
-    args = SubtitleClipper.gen_args(whisper_model=request.model_size)
+    args = SubtitleClipper.gen_args(
+        whisper_mode=request.translation_model, whisper_model=request.model_size
+    )
     upload_path = ensure_dir(settings.UPLOAD_BASE_PATH, request.request_id)
     srt_clipper = SubtitleClipper(autocut_args=args, upload_path=upload_path)
     llm_srts_list = srt_clipper.extract_clips(prompt=request.prompt)
@@ -53,7 +55,9 @@ async def load_imgs_info(request: LLMVisionClipperRequest):
     logger.info(f"llm_vision clipper request: {request.json()}")  # noqa: G004
 
     upload_path = ensure_dir(settings.UPLOAD_BASE_PATH, request.request_id)
-    llmv_clipper = LLMVisionClipper(upload_path, request.sample_interval)
+    llmv_clipper = LLMVisionClipper(
+        upload_path, request.sample_interval, request.clip_duration
+    )
     imgs_info_list = llmv_clipper.extract_clips(prompt=request.prompt)
 
     if not imgs_info_list:

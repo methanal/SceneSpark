@@ -56,14 +56,14 @@ const App = () => {
     },
   };
 
-  const handleFetchTab1 = async (prompt, modelSize) => {
+  const handleFetchTab1 = async (prompt, translationModel, modelSize) => {
     try {
       const response = await fetch(`/api/v1/clips/extract/llm_srts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ request_id: uniqueID, model_size: modelSize, prompt }),
+        body: JSON.stringify({ request_id: uniqueID, translation_model: translationModel, model_size: modelSize, prompt }),
       });
 
       if (response.ok) {
@@ -86,14 +86,14 @@ const App = () => {
     }
   };
 
-  const handleFetchTab2 = async (prompt, samplingInterval) => {
+  const handleFetchTab2 = async (prompt, samplingInterval, clipDuration) => {
     try {
       const response = await fetch(`/api/v1/clips/extract/imgs_info`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ request_id: uniqueID, sample_interval: samplingInterval, prompt }),
+        body: JSON.stringify({ request_id: uniqueID, sample_interval: samplingInterval, clip_duration: clipDuration, prompt }),
       });
 
       if (response.ok) {

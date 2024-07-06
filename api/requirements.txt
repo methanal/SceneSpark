@@ -24,6 +24,8 @@ attrs==23.2.0
     #   referencing
 autocut-sub @ git+https://github.com/methanal/autocut.git@libs
     # via -r requirements.in
+av==12.2.0
+    # via faster-whisper
 certifi==2024.6.2
     # via
     #   httpcore
@@ -37,6 +39,10 @@ click==8.1.7
     #   typer
     #   ullm
     #   uvicorn
+coloredlogs==15.0.1
+    # via onnxruntime
+ctranslate2==4.3.1
+    # via faster-whisper
 decorator==4.4.2
     # via moviepy
 deepmerge==1.1.1
@@ -55,12 +61,20 @@ fastapi==0.111.0
     #   sentry-sdk
 fastapi-cli==0.0.4
     # via fastapi
+faster-whisper==1.0.3
+    # via -r requirements.in
 ffmpeg-python==0.2.0
     # via autocut-sub
 filelock==3.15.1
-    # via torch
+    # via
+    #   huggingface-hub
+    #   torch
+flatbuffers==24.3.25
+    # via onnxruntime
 fsspec==2024.6.0
-    # via torch
+    # via
+    #   huggingface-hub
+    #   torch
 future==1.0.0
     # via ffmpeg-python
 h11==0.14.0
@@ -76,6 +90,12 @@ httpx==0.27.0
     #   -r requirements.in
     #   fastapi
     #   openai
+huggingface-hub==0.23.4
+    # via
+    #   faster-whisper
+    #   tokenizers
+humanfriendly==10.0
+    # via coloredlogs
 idna==3.7
     # via
     #   anyio
@@ -121,11 +141,15 @@ numba==0.60.0
     # via openai-whisper
 numpy==1.26.4
     # via
+    #   ctranslate2
     #   imageio
     #   moviepy
     #   numba
+    #   onnxruntime
     #   openai-whisper
     #   opencv-python
+onnxruntime==1.18.1
+    # via faster-whisper
 openai==1.34.0
     # via -r requirements.in
 openai-whisper==20231117
@@ -138,6 +162,10 @@ orjson==3.10.5
     # via
     #   -r requirements.in
     #   fastapi
+packaging==24.1
+    # via
+    #   huggingface-hub
+    #   onnxruntime
 parameterized==0.9.0
     # via autocut-sub
 peewee==3.17.5
@@ -146,6 +174,8 @@ pillow==10.3.0
     # via imageio
 proglog==0.1.10
     # via moviepy
+protobuf==5.27.2
+    # via onnxruntime
 pydantic==2.7.4
     # via
     #   fastapi
@@ -171,7 +201,10 @@ python-magic==0.4.27
 python-multipart==0.0.9
     # via fastapi
 pyyaml==6.0.1
-    # via uvicorn
+    # via
+    #   ctranslate2
+    #   huggingface-hub
+    #   uvicorn
 referencing==0.35.1
     # via
     #   jsonschema
@@ -180,6 +213,7 @@ regex==2024.5.15
     # via tiktoken
 requests==2.32.3
     # via
+    #   huggingface-hub
     #   moviepy
     #   tiktoken
     #   ullm
@@ -205,11 +239,15 @@ srt==3.5.3
 starlette==0.37.2
     # via fastapi
 sympy==1.12.1
-    # via torch
+    # via
+    #   onnxruntime
+    #   torch
 tabulate==0.9.0
     # via ullm
 tiktoken==0.7.0
     # via openai-whisper
+tokenizers==0.19.1
+    # via faster-whisper
 torch==2.3.1
     # via
     #   openai-whisper
@@ -219,6 +257,7 @@ torchaudio==2.3.1
 tqdm==4.66.4
     # via
     #   autocut-sub
+    #   huggingface-hub
     #   moviepy
     #   openai
     #   openai-whisper
@@ -231,6 +270,7 @@ typing-extensions==4.12.2
     # via
     #   anyio
     #   fastapi
+    #   huggingface-hub
     #   openai
     #   pydantic
     #   pydantic-core
