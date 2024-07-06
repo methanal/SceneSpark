@@ -12,6 +12,7 @@ const App = () => {
   const [videoClips, setVideoClips] = useState([]);
   const [videoClips2, setVideoClips2] = useState([]);
   const [uniqueID] = useState(uuidv4());
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
 
   const handleUpload = (file) => {
     const formData = new FormData();
@@ -27,6 +28,7 @@ const App = () => {
       .then(data => {
         message.success(`${file.name} file uploaded successfully.`);
         console.log(data);
+        setIsFileUploaded(true);
       })
       .catch(() => {
         message.error(`${file.name} file upload failed.`);
@@ -57,6 +59,11 @@ const App = () => {
   };
 
   const handleFetchTab1 = async (prompt, translationModel, modelSize) => {
+    if (!isFileUploaded) {
+      message.error('Please upload a file first.');
+      return;
+    }
+
     try {
       const response = await fetch(`/api/v1/clips/extract/llm_srts`, {
         method: 'POST',
@@ -87,6 +94,11 @@ const App = () => {
   };
 
   const handleFetchTab2 = async (prompt, samplingInterval, clipDuration) => {
+    if (!isFileUploaded) {
+      message.error('Please upload a file first.');
+      return;
+    }
+
     try {
       const response = await fetch(`/api/v1/clips/extract/imgs_info`, {
         method: 'POST',
@@ -135,7 +147,8 @@ const App = () => {
         <TextAreaUpload
           uniqueID={uniqueID}
           handleFetchTab1={handleFetchTab1}
-          handleFetchTab2={handleFetchTab2} />
+          handleFetchTab2={handleFetchTab2}
+        />
         <VideoTabs videoClips={videoClips} videoClips2={videoClips2} />
       </Content>
       <Footer style={{ textAlign: 'center' }}>
