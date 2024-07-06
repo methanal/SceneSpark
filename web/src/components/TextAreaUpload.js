@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Input, Button, message, Select } from 'antd';
+import { Divider, Row, Col, Card, Input, Button, message, Select } from 'antd';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -51,6 +51,7 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
                   <Option value="faster">faster-whisper (CTranslate2)</Option>Option>
                   <Option value="sense_voice" disabled>SenseVoice</Option>Option>
                 </Select>
+                <Divider type="vertical"/>
                 <span style={{ marginRight: '10px' }}>Model Size</span>
                 <Select
                   value={modelSize}
@@ -93,8 +94,9 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
                 placeholder="Enter sampling interval"
                 style={{ width: '60px', marginRight: '8px' }}
               />
-              <span>seconds</span>
-              <span style={{ marginRight: '8px' }}>Set Clip Duration</span>
+              <span style={{ marginRight: '8px' }}>seconds</span>
+              <Divider type="vertical"/>
+              <span style={{ marginRight: '8px' }}>Clip Duration</span>
               <Input
                 type="number"
                 value={clipDuration}
