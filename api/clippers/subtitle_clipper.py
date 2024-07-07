@@ -32,8 +32,8 @@ class SubtitleClipper(BaseClipper):
         self.llm_client = initialize_llm_client()
         self.upload_path = upload_path
 
-    def extract_clips(self, prompt: str) -> List[Dict]:
-        llm_srts_list = []
+    def extract_clips(self, prompt: str) -> Dict[Path, list]:
+        llm_srts_dict: Dict[Path, list] = {}
         for video_file in find_video_files(self.upload_path):
             self.autocut_args.inputs = [video_file]
             subs, srts = self.__transcribe_srt(video_file)
@@ -43,7 +43,7 @@ class SubtitleClipper(BaseClipper):
                 llm_srts = llm_srts['picked']
             except orjson.JSONDecodeError as e:
                 logger.warning("llm doesn't return JSON, it returns: {e}", e=str(e))
-                llm_srts_list.append({'source': video_file, 'llm_srts': []})
+                llm_srts_dict[video_file] = []
                 continue
 
             for s in llm_srts:
@@ -52,9 +52,9 @@ class SubtitleClipper(BaseClipper):
                 s['end'] = sub.end.total_seconds()
                 s['subtitle'] = sub
 
-            llm_srts_list.append({'source': video_file, 'segments': llm_srts})
+            llm_srts_dict[video_file] = llm_srts
 
-        return llm_srts_list
+        return llm_srts_dict
 
     def __transcribe_srt(self, video_file: Path):
         transcriber = Transcribe(self.autocut_args)
@@ -130,9 +130,9 @@ if __name__ == "__main__":
     prompt = PROMPT_PICK_SUBTITLE_RETURN_JSON.format(
         selection_ratio=settings.LLM_SUBTITLE_SELECTION_RATIO
     )
-    llm_srts = sub_clipper.extract_clips(prompt=prompt)
+    llm_srts_dict = sub_clipper.extract_clips(prompt=prompt)
 
     clips_path = Path('.')
-    BaseClipper.store_clips(llm_srts, clips_path)
-    BaseClipper.pickle_segments_json(llm_srts, clips_path)
-    llm_srts = BaseClipper.flatten_clips_result(llm_srts)
+    BaseClipper.store_clips(llm_srts_dict, clips_path)
+    BaseClipper.pickle_segments_json(llm_srts_dict, clips_path, 'llm_srts_dict')
+    llm_srts = BaseClipper.flatten_clips_result(llm_srts_dict)

@@ -20,8 +20,8 @@ class Settings(BaseSettings):
 
     VIDEOS_URI_PREFIX: Path = Path('/videos/clips')
 
-    LLM_SUBTITLE_SELECTION_RATIO: str = "三分之一"
-    LLM_VIDEO_SELECTION_RATIO: str = "三分之一"
+    LLM_SUBTITLE_SELECTION_RATIO: str = "30%"
+    LLM_VIDEO_SELECTION_RATIO: str = "30%"
 
     SENTRY_DSN: str = ''
     SENTRY_APM_SAMPLE_RATE: Optional[float] = 1

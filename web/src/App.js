@@ -11,6 +11,7 @@ const { Dragger } = Upload;
 const App = () => {
   const [videoClips, setVideoClips] = useState([]);
   const [videoClips2, setVideoClips2] = useState([]);
+  const [videoClips3, setVideoClips3] = useState([]);
   const [uniqueID] = useState(uuidv4());
   const [isFileUploaded, setIsFileUploaded] = useState(false);
 
@@ -128,6 +129,41 @@ const App = () => {
     }
   };
 
+  const handleFetchTab3 = async () => {
+    if (!isFileUploaded) {
+      message.error('Please upload a file first.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/v1/clips/merge_json`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ request_id: uniqueID }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.merge_json && result.merge_json.length > 0) {
+          setVideoClips3(result.merge_json.map(item => ({
+            ...item,
+            url: item.file_path,
+            tags: item.tags || [],
+            description: item.description || '',
+          })));
+          return;
+        }
+      } else {
+        message.error('Failed to fetch data');
+      }
+    } catch (error) {
+      console.error('Polling error:', error);
+      message.error('Polling error');
+    }
+  };
+
   return (
     <Layout>
       <Header>
@@ -149,7 +185,12 @@ const App = () => {
           handleFetchTab1={handleFetchTab1}
           handleFetchTab2={handleFetchTab2}
         />
-        <VideoTabs videoClips={videoClips} videoClips2={videoClips2} />
+        <VideoTabs
+          videoClips={videoClips}
+          videoClips2={videoClips2}
+          videoClips3={videoClips3}
+          handleFetchTab3={handleFetchTab3}
+        />
       </Content>
       <Footer style={{ textAlign: 'center' }}>
       </Footer>

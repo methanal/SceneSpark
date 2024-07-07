@@ -13,3 +13,7 @@ class LLMVisionClipperRequest(BaseModel):
     prompt: str
     sample_interval: float
     clip_duration: float
+
+
+class MergeJsonRequest(BaseModel):
+    request_id: str

@@ -41,11 +41,9 @@ class LLMVisionClipper(BaseClipper):
             clip_duration if clip_duration > 0.0 else settings.LLM_VISION_CLIP_DURATION
         )
 
-    def extract_clips(self, prompt: str) -> List[Dict]:
-        imgs_info_list = []
+    def extract_clips(self, prompt: str) -> Dict[Path, list]:
+        imgs_info_dict: Dict[Path, list] = {}
         for video_file in find_video_files(self.upload_path):
-            video_file = video_file.resolve()
-
             encode_frames = self.sample_frames(
                 video_file=video_file, interval=self.sample_interval, save_image=True
             )
@@ -56,7 +54,8 @@ class LLMVisionClipper(BaseClipper):
                 imgs_info = imgs_info['picked']
             except orjson.JSONDecodeError as e:
                 logger.warning("llm doesn't return JSON, it returns: %s", str(e))
-                return []
+                imgs_info_dict[video_file] = []
+                continue
 
             offset = self.clip_duration / 2
             for m in imgs_info:
@@ -67,12 +66,12 @@ class LLMVisionClipper(BaseClipper):
                 m['start'] = img_ts - offset
                 m['end'] = img_ts + offset
 
-            imgs_info_list.append({'source': video_file, 'segments': imgs_info})
+            imgs_info_dict[video_file] = imgs_info
 
         # TODO
         # The current editing approach results in poor audio continuity.
         # To fix this, use subtitle timing correction.
-        return imgs_info_list
+        return imgs_info_dict
 
     def sample_frames(
         self, video_file: Path, interval: float = 5.0, save_image: bool = False
@@ -121,9 +120,9 @@ if __name__ == "__main__":
     prompt = PROMPT_PICK_IMG_RETURN_JSON.format(
         selection_ratio=settings.LLM_VIDEO_SELECTION_RATIO
     )
-    imgs_info = llmv_clipper.extract_clips(prompt=prompt)
+    imgs_info_dict = llmv_clipper.extract_clips(prompt=prompt)
 
     clips_path = Path('.')
-    BaseClipper.store_clips(imgs_info, clips_path)
-    BaseClipper.pickle_segments_json(imgs_info, clips_path)
-    imgs_info = BaseClipper.flatten_clips_result(imgs_info)
+    BaseClipper.store_clips(imgs_info_dict, clips_path)
+    BaseClipper.pickle_segments_json(imgs_info_dict, clips_path, 'imgs_info_dict')
+    imgs_info = BaseClipper.flatten_clips_result(imgs_info_dict)

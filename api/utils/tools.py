@@ -32,13 +32,13 @@ def ensure_dir(prefix: Path, request_id: str, purge: bool = False):
     return output_dir
 
 
-def load_pickle(request_id: str, suffix: str, pickle_name: str) -> list:
-    pickle_file = Path(f"{settings.UPLOAD_BASE_PATH}/{request_id}/{pickle_name}.pkl")
+def load_pickle(request_id: str, pickle_name: str) -> dict:
+    pickle_file = Path(f"{settings.CLIPS_BASE_PATH}/{request_id}/{pickle_name}.pkl")
     if pickle_file.exists() and pickle_file.is_file():
         with open(pickle_file, 'rb') as f:
             return pickle.load(f)  # nosec
 
-    return []
+    return {}
 
 
 def find_video_files(path: Path) -> List:

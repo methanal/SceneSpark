@@ -12,12 +12,19 @@ from fastapi import (
 # isort: on
 from fastapi.responses import ORJSONResponse, StreamingResponse
 
-from app.clips.schemas import LLMVisionClipperRequest, SubtitleClipperRequest
+# isort: off
+from app.clips.schemas import (
+    LLMVisionClipperRequest,
+    MergeJsonRequest,
+    SubtitleClipperRequest,
+)
+
+# isort: on
 from app.libs.config import settings
 from clippers.base_clipper import BaseClipper
 from clippers.llm_vision_clipper import LLMVisionClipper
 from clippers.subtitle_clipper import SubtitleClipper
-from utils.tools import ensure_dir
+from utils.tools import ensure_dir, load_pickle
 
 router = APIRouter()
 
@@ -34,15 +41,15 @@ async def load_llm_srts(request: SubtitleClipperRequest):
     )
     upload_path = ensure_dir(settings.UPLOAD_BASE_PATH, request.request_id)
     srt_clipper = SubtitleClipper(autocut_args=args, upload_path=upload_path)
-    llm_srts_list = srt_clipper.extract_clips(prompt=request.prompt)
+    llm_srts_dict = srt_clipper.extract_clips(prompt=request.prompt)
 
-    if not llm_srts_list:
+    if not llm_srts_dict:
         raise HTTPException(status_code=404, detail="No clips found")
 
     clips_path = ensure_dir(settings.CLIPS_BASE_PATH, request.request_id)
-    BaseClipper.store_clips(llm_srts_list, clips_path)
-    BaseClipper.pickle_segments_json(llm_srts_list, clips_path)
-    llm_srts = BaseClipper.flatten_clips_result(llm_srts_list)
+    BaseClipper.store_clips(llm_srts_dict, clips_path)
+    BaseClipper.pickle_segments_json(llm_srts_dict, clips_path, 'llm_srts_dict')
+    llm_srts = BaseClipper.flatten_clips_result(llm_srts_dict)
 
     return {"llm_srts": llm_srts}
 
@@ -58,17 +65,46 @@ async def load_imgs_info(request: LLMVisionClipperRequest):
     llmv_clipper = LLMVisionClipper(
         upload_path, request.sample_interval, request.clip_duration
     )
-    imgs_info_list = llmv_clipper.extract_clips(prompt=request.prompt)
+    imgs_info_dict = llmv_clipper.extract_clips(prompt=request.prompt)
 
-    if not imgs_info_list:
+    if not imgs_info_dict:
         raise HTTPException(status_code=404, detail="No clips found")
 
     clips_path = ensure_dir(settings.CLIPS_BASE_PATH, request.request_id)
-    BaseClipper.store_clips(imgs_info_list, clips_path)
-    BaseClipper.pickle_segments_json(imgs_info_list, clips_path)
-    imgs_info = BaseClipper.flatten_clips_result(imgs_info_list)
+    BaseClipper.store_clips(imgs_info_dict, clips_path)
+    BaseClipper.pickle_segments_json(imgs_info_dict, clips_path, 'imgs_info_dict')
+    imgs_info = BaseClipper.flatten_clips_result(imgs_info_dict)
 
     return {"imgs_info": imgs_info}
+
+
+@router.post(
+    "/api/v1/clips/merge_json",
+    response_class=ORJSONResponse,
+)
+async def load_merge_json(request: MergeJsonRequest):
+    logger.info(f"merge json request: {request.json()}")  # noqa: G004
+
+    llm_srts_dict = load_pickle(request.request_id, 'llm_srts_dict')
+    imgs_info_dict = load_pickle(request.request_id, 'imgs_info_dict')
+
+    if not llm_srts_dict:
+        merge_json = (
+            BaseClipper.flatten_clips_result(imgs_info_dict) if imgs_info_dict else []
+        )
+        return {"merge_json": merge_json}
+    if not imgs_info_dict:
+        merge_json = (
+            BaseClipper.flatten_clips_result(llm_srts_dict) if llm_srts_dict else []
+        )
+        return {"merge_json": merge_json}
+
+    merge_json_dict = BaseClipper.merge_clips_dict(llm_srts_dict, imgs_info_dict)
+    clips_path = ensure_dir(settings.CLIPS_BASE_PATH, request.request_id)
+    BaseClipper.store_clips(merge_json_dict, clips_path)
+    merge_json = BaseClipper.flatten_clips_result(merge_json_dict)
+
+    return {"merge_json": merge_json}
 
 
 @router.get("/api/v1/clips/download/{file_name}")
