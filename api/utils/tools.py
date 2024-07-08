@@ -62,4 +62,4 @@ def find_video_files(path: Path) -> List:
     for ext in extensions:
         video_files.extend(glob.glob(os.path.join(path, f"*.{ext}"), recursive=False))
 
-    return [Path(p) for p in video_files]
+    return sorted([Path(p) for p in video_files])
