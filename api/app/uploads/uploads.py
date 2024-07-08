@@ -32,8 +32,8 @@ async def upload_files(
     files: List[UploadFile] = File(description="source video files."),  # noqa: B008
     request_id: Optional[str] = Form(None),  # noqa: B008
 ):
-    upload_dir = ensure_dir(settings.UPLOAD_BASE_PATH, request_id, purge=True)
-    clips_dir = ensure_dir(settings.CLIPS_BASE_PATH, request_id, purge=True)
+    upload_dir = ensure_dir(settings.UPLOAD_BASE_PATH, request_id)
+    clips_dir = ensure_dir(settings.CLIPS_BASE_PATH, request_id)
     logger.debug(f"upload_dir: {upload_dir}, clips_dir: {clips_dir}")  # noqa: G004
 
     for f_in in files:
