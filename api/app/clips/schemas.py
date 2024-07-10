@@ -6,6 +6,7 @@ class SubtitleClipperRequest(BaseModel):
     prompt: str
     translation_model: str
     model_size: str
+    whisper_prompt: str
 
 
 class LLMVisionClipperRequest(BaseModel):

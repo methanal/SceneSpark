@@ -37,7 +37,9 @@ async def load_llm_srts(request: SubtitleClipperRequest):
     logger.info(f"subtitle clipper request: {request.json()}")  # noqa: G004
 
     args = SubtitleClipper.gen_args(
-        whisper_mode=request.translation_model, whisper_model=request.model_size
+        audio_prompt=request.whisper_prompt,
+        whisper_mode=request.translation_model,
+        whisper_model=request.model_size,
     )
     upload_path = ensure_dir(settings.UPLOAD_BASE_PATH, request.request_id)
     srt_clipper = SubtitleClipper(autocut_args=args, upload_path=upload_path)

@@ -51,6 +51,7 @@ PROMPT_IMGS_SUMMARY = "这几张图片描述了什么故事？"
 #   ]
 # }}
 # """
+PROMPT_WHISPER = ""
 
 PROMPT_PICK_SUBTITLE_RETURN_JSON = """我将提供一篇的字幕文件，
 以空行隔出很多段，
