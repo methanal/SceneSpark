@@ -59,7 +59,7 @@ const App = () => {
     },
   };
 
-  const handleFetchTab1 = async (prompt, translationModel, modelSize) => {
+  const handleFetchTab1 = async (prompt, translationModel, modelSize, whisperPrompt) => {
     if (!isFileUploaded) {
       message.error('Please upload a file first.');
       return;
@@ -71,7 +71,7 @@ const App = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ request_id: uniqueID, translation_model: translationModel, model_size: modelSize, prompt }),
+        body: JSON.stringify({ request_id: uniqueID, translation_model: translationModel, model_size: modelSize, whisper_prompt: whisperPrompt, prompt }),
       });
 
       if (response.ok) {

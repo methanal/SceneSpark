@@ -7,6 +7,7 @@ const { Option } = Select;
 const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
   const [text1, setText1] = useState('');
   const [text2, setText2] = useState('');
+  const [whisper_prompt, setText_prompt] = useState('');
   const [samplingInterval, setSamplingInterval] = useState(3);
   const [clipDuration, setClipDuration] = useState(3);
   const [translationModel, setTranslationModel] = useState('whisper');
@@ -20,6 +21,7 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
         const result = await response.json();
         setText1(result.subtitle_prompt || '');
         setText2(result.vision_prompt || '');
+        setText_prompt(result.whisper_prompt || '');
       } else {
         message.error('Failed to fetch prompts');
       }
@@ -74,13 +76,21 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
               </div>
             </div>
             <TextArea
-              value={text1}
-              onChange={(e) => setText1(e.target.value)}
-              placeholder="Input text here..."
-              autoSize={{ minRows: 10, maxRows: 20 }}
+              value={whisper_prompt}
+              onChange={(e) => setText_prompt(e.target.value)}
+              placeholder="Input Whisper Prompt here..."
+              autoSize={{ minRows: 4, maxRows: 10 }}
               style={{ width: '100%' }}
             />
-            <Button onClick={() => handleFetchTab1(text1, translationModel, modelSize)} style={{ marginTop: '16px' }}>Extract Clips</Button>
+            <Divider />
+            <TextArea
+              value={text1}
+              onChange={(e) => setText1(e.target.value)}
+              placeholder="Input Prompt here..."
+              autoSize={{ minRows: 10, maxRows: 14 }}
+              style={{ width: '100%' }}
+            />
+            <Button onClick={() => handleFetchTab1(text1, translationModel, modelSize, whisper_prompt)} style={{ marginTop: '16px' }}>Extract Clips</Button>
           </Card>
         </Col>
         <Col span={12}>
