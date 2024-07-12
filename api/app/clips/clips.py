@@ -17,6 +17,7 @@ from app.clips.schemas import (
     LLMVisionClipperRequest,
     MergeJsonRequest,
     SubtitleClipperRequest,
+    VisionWithSrtClipperRequest,
 )
 
 # isort: on
@@ -107,6 +108,35 @@ async def load_merge_json(request: MergeJsonRequest):
     merge_json = BaseClipper.flatten_clips_result(merge_json_dict)
 
     return {"merge_json": merge_json}
+
+
+@router.post(
+    "/api/v1/clips/extract/vision_with_srt",
+    response_class=ORJSONResponse,
+)
+async def load_vision_with_srt(request: VisionWithSrtClipperRequest):
+    logger.info(f"vision_with_srt json request: {request.json()}")  # noqa: G004
+
+    # args = SubtitleClipper.gen_args(
+    #     audio_prompt=request.whisper_prompt,
+    #     whisper_mode=request.translation_model,
+    #     whisper_model=request.model_size,
+    # )
+    # upload_path = ensure_dir(settings.UPLOAD_BASE_PATH, request.request_id)
+
+    # vision_with_srt_dict = []  # FIXME
+    # if not vision_with_srt_dict:
+    #     raise HTTPException(status_code=404, detail="No clips found")
+
+    # clips_path = ensure_dir(settings.CLIPS_BASE_PATH, request.request_id)
+    # BaseClipper.store_clips(vision_with_srt_dict, clips_path)
+    # BaseClipper.pickle_segments_json(
+    #     vision_with_srt_dict, clips_path, 'vision_with_srt_dict'
+    # )
+    # vision_with_srt_json = BaseClipper.flatten_clips_result(vision_with_srt_dict)
+
+    vision_with_srt_json: list = []
+    return {"vision_with_srt_json": vision_with_srt_json}
 
 
 @router.get("/api/v1/clips/download/{file_name}")

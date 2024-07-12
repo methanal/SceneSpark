@@ -4,7 +4,7 @@ import { Divider, Row, Col, Card, Input, Button, message, Select } from 'antd';
 const { TextArea } = Input;
 const { Option } = Select;
 
-const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
+const TextAreaAfterLLM = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
   const [text1, setText1] = useState('');
   const [text2, setText2] = useState('');
   const [whisper_prompt, setText_prompt] = useState('');
@@ -39,41 +39,39 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
     <>
       <Row gutter={16} style={{ marginBottom: '16px' }}>
         <Col span={12}>
-          <Card title="Subtitle Prompt">
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', marginRight: '16px' }}>
-                <span style={{ marginRight: '10px' }}>Translation Model</span>
-                <Select
-                  value={translationModel}
-                  onChange={setTranslationModel}
-                  style={{ width: '220px', marginRight: '16px' }}
-                >
-                  <Option value="whisper">whisper</Option>
-                  <Option value="openai" disabled>Whisper API (large-v2)</Option>Option>
-                  <Option value="faster">faster-whisper (CTranslate2)</Option>Option>
-                  <Option value="sense_voice" disabled>SenseVoice</Option>Option>
-                </Select>
-                <Divider type="vertical"/>
-                <span style={{ marginRight: '10px' }}>Model Size</span>
-                <Select
-                  value={modelSize}
-                  onChange={setModelSize}
-                  style={{ width: '100px' }}
-                  disabled={modelSizeOptions.length === 0}
-                >
-                  {modelSizeOptions.length > 0 ? (
-                    modelSizeOptions.map(size => (
-                      <Option key={size} value={size}>
-                        {size}
-                      </Option>
-                    ))
-                  ) : (
-                    <Option value="" disabled>
-                      No options
+          <Card size="small" title="Subtitle Prompt">
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+              <span style={{ marginRight: '10px' }}>Translation Model</span>
+              <Select
+                value={translationModel}
+                onChange={setTranslationModel}
+                style={{ width: '220px', marginRight: '16px' }}
+              >
+                <Option value="whisper">whisper</Option>
+                <Option value="openai" disabled>Whisper API (large-v2)</Option>Option>
+                <Option value="faster">faster-whisper (CTranslate2)</Option>Option>
+                <Option value="sense_voice" disabled>SenseVoice</Option>Option>
+              </Select>
+              <Divider type="vertical"/>
+              <span style={{ marginRight: '10px' }}>Model Size</span>
+              <Select
+                value={modelSize}
+                onChange={setModelSize}
+                style={{ width: '100px' }}
+                disabled={modelSizeOptions.length === 0}
+              >
+                {modelSizeOptions.length > 0 ? (
+                  modelSizeOptions.map(size => (
+                    <Option key={size} value={size}>
+                      {size}
                     </Option>
-                  )}
-                </Select>
-              </div>
+                  ))
+                ) : (
+                  <Option value="" disabled>
+                    No options
+                  </Option>
+                )}
+              </Select>
             </div>
             <TextArea
               value={whisper_prompt}
@@ -94,7 +92,7 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
           </Card>
         </Col>
         <Col span={12}>
-          <Card title="LLM Vision Prompt">
+          <Card size="small" title="LLM Vision Prompt">
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
               <span style={{ marginRight: '8px' }}>Sample Interval</span>
               <Input
@@ -131,4 +129,4 @@ const TextAreaUpload = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
   );
 };
 
-export default TextAreaUpload;
+export default TextAreaAfterLLM;
