@@ -107,3 +107,5 @@ PROMPT_PICK_IMG_RETURN_JSON = """我将提供很多张短剧的截图，这些�
   ]
 }}
 """
+
+PROMPT_PICK_VIDEO_META_RETURN_JSON = 'not read yet.'

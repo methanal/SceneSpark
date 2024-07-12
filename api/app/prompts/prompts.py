@@ -10,6 +10,7 @@ from clippers.prompt.prompt_text import (
     PROMPT_PICK_IMG_RETURN_JSON,
     PROMPT_PICK_SUBTITLE_RETURN_JSON,
     PROMPT_WHISPER,
+    PROMPT_PICK_VIDEO_META_RETURN_JSON,
 )
 
 # isort: on
@@ -29,8 +30,10 @@ async def prompts(request_id: str):
         selection_ratio=settings.LLM_VIDEO_SELECTION_RATIO
     )
     whisper_prompt = PROMPT_WHISPER
+    vision_with_srt_prompt = PROMPT_PICK_VIDEO_META_RETURN_JSON
     return {
         'subtitle_prompt': subtitle_prompt,
         "vision_prompt": vision_prompt,
         "whisper_prompt": whisper_prompt,
+        "vision_with_srt_prompt": vision_with_srt_prompt,
     }

@@ -18,3 +18,13 @@ class LLMVisionClipperRequest(BaseModel):
 
 class MergeJsonRequest(BaseModel):
     request_id: str
+
+
+class VisionWithSrtClipperRequest(BaseModel):
+    request_id: str
+    translation_model: str
+    model_size: str
+    sample_interval: float
+    clip_duration: float
+    whisper_prompt: str
+    prompt: str

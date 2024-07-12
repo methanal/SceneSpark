@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
-import { Divider, Layout, message, Upload } from 'antd';
+import { Divider, Layout, message, Tabs, Upload } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { v4 as uuidv4 } from 'uuid';
-import TextAreaUpload from './components/TextAreaUpload';
+import TextAreaAfterLLM from './components/TextAreaAfterLLM';
+import TextAreaBeforeLLM from './components/TextAreaBeforeLLM';
 import VideoTabs from './components/VideoTabs';
+import VideoTabBeforeLLM from './components/VideoTabBeforeLLM';
 
 const { Content, Footer, Header } = Layout;
+const { TabPane } = Tabs;
 const { Dragger } = Upload;
 
 const App = () => {
   const [videoClips, setVideoClips] = useState([]);
   const [videoClips2, setVideoClips2] = useState([]);
   const [videoClips3, setVideoClips3] = useState([]);
+  const [videoClips4, setVideoClips4] = useState([]);
   const [uniqueID] = useState(uuidv4());
   const [isFileUploaded, setIsFileUploaded] = useState(false);
 
@@ -164,6 +168,49 @@ const App = () => {
     }
   };
 
+  const handleFetchTab4 = async (translationModel, modelSize, whisperPrompt, samplingInterval, clipDuration, prompt) => {
+    if (!isFileUploaded) {
+      message.error('Please upload a file first.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/v1/clips/extract/vision_with_srt`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          request_id: uniqueID,
+          translation_model: translationModel,
+          model_size: modelSize,
+          whisper_prompt: whisperPrompt,
+          sample_interval: samplingInterval,
+          clip_duration: clipDuration,
+          prompt
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.vision_with_srt_json && result.vision_with_srt_json.length > 0) {
+          setVideoClips3(result.vision_with_srt_json.map(item => ({
+            ...item,
+            url: item.file_path,
+            tags: item.tags || [],
+            description: item.description || '',
+          })));
+          return;
+        }
+      } else {
+        message.error('Failed to fetch data');
+      }
+    } catch (error) {
+      console.error('Polling error:', error);
+      message.error('Polling error');
+    }
+  };
+
   return (
     <Layout>
       <Header>
@@ -180,17 +227,32 @@ const App = () => {
           </p>
         </Dragger>
         <Divider />
-        <TextAreaUpload
-          uniqueID={uniqueID}
-          handleFetchTab1={handleFetchTab1}
-          handleFetchTab2={handleFetchTab2}
-        />
-        <VideoTabs
-          videoClips={videoClips}
-          videoClips2={videoClips2}
-          videoClips3={videoClips3}
-          handleFetchTab3={handleFetchTab3}
-        />
+        <Tabs type="card" defaultActiveKey="2">
+          <TabPane tab="Merge after LLM pick" key="1">
+            <TextAreaAfterLLM
+              uniqueID={uniqueID}
+              handleFetchTab1={handleFetchTab1}
+              handleFetchTab2={handleFetchTab2}
+            />
+            <VideoTabs
+              videoClips={videoClips}
+              videoClips2={videoClips2}
+              videoClips3={videoClips3}
+              handleFetchTab3={handleFetchTab3}
+            />
+          </TabPane>
+          <TabPane tab="Merge before LLM pick" key="2">
+            <TextAreaBeforeLLM
+              uniqueID={uniqueID}
+              handleFetchTab1={handleFetchTab1}
+              handleFetchTab2={handleFetchTab2}
+            />
+            <VideoTabBeforeLLM
+              videoClips4={videoClips4}
+              handleFetchTab4={handleFetchTab4}
+            />
+          </TabPane>
+        </Tabs>
       </Content>
       <Footer style={{ textAlign: 'center' }}>
       </Footer>
