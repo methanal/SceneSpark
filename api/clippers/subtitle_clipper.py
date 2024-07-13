@@ -1,7 +1,8 @@
 import argparse
 import sys
+from collections.abc import Generator
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 import orjson
 import srt
@@ -14,14 +15,7 @@ parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir))
 
 from clippers.base_clipper import BaseClipper  # noqa: E402
-
-# isort: off
-from clippers.wrappers.llm_wrapper import (  # noqa: E402
-    initialize_llm_client,
-    llm_pick_srts,
-)
-
-# isort: on
+from clippers.wrappers.llm_wrapper import llm_pick_srts  # noqa: E402
 from utils.tools import find_video_files  # noqa: E402
 
 
@@ -29,15 +23,12 @@ class SubtitleClipper(BaseClipper):
     def __init__(self, autocut_args, upload_path: Path):
         super().__init__()
         self.autocut_args = autocut_args
-        self.llm_client = initialize_llm_client()
         self.upload_path = upload_path
 
-    def extract_clips(self, prompt: str) -> Dict[Path, list]:
-        llm_srts_dict: Dict[Path, list] = {}
-        for video_file in find_video_files(self.upload_path):
-            self.autocut_args.inputs = [video_file]
-            subs, srts = self.__transcribe_srt(video_file)
-            _srts_json = llm_pick_srts(self.llm_client, srts, prompt)
+    def extract_clips(self, prompt: str, llm_client) -> dict[Path, list]:
+        llm_srts_dict: dict[Path, list] = {}
+        for video_file, subs, srts in self.extract_subtitle():
+            _srts_json = llm_pick_srts(llm_client, srts, prompt)
             try:
                 llm_srts = orjson.loads(_srts_json)
                 llm_srts = llm_srts['picked']
@@ -48,13 +39,19 @@ class SubtitleClipper(BaseClipper):
 
             for s in llm_srts:
                 sub = subs[int(s["index"]) - 1]
+                s['subtitle'] = sub
                 s['start'] = sub.start.total_seconds()
                 s['end'] = sub.end.total_seconds()
-                s['subtitle'] = sub
 
             llm_srts_dict[video_file] = llm_srts
 
         return llm_srts_dict
+
+    def extract_subtitle(self) -> Generator[tuple[Path, list, str], None, None]:
+        for video_file in find_video_files(self.upload_path):
+            self.autocut_args.inputs = [video_file]
+            subs, srts = self.__transcribe_srt(video_file)
+            yield video_file, subs, srts
 
     def __transcribe_srt(self, video_file: Path):
         transcriber = Transcribe(self.autocut_args)
@@ -99,7 +96,7 @@ class SubtitleClipper(BaseClipper):
 
     @staticmethod
     def merge_videos(
-        cut_files: List[Path], session_path: Path, merge_filename: Path, bitrate='10m'
+        cut_files: list[Path], session_path: Path, merge_filename: Path, bitrate='10m'
     ):
         videos = []
         for file in cut_files:
@@ -122,6 +119,7 @@ class SubtitleClipper(BaseClipper):
 if __name__ == "__main__":
     from app.libs.config import settings
     from clippers.prompt.prompt_text import PROMPT_PICK_SUBTITLE_RETURN_JSON
+    from clippers.wrappers.llm_wrapper import initialize_llm_client
 
     # video_name = '2.mp4'
     args = SubtitleClipper.gen_args()
@@ -130,7 +128,9 @@ if __name__ == "__main__":
     prompt = PROMPT_PICK_SUBTITLE_RETURN_JSON.format(
         selection_ratio=settings.LLM_SUBTITLE_SELECTION_RATIO
     )
-    llm_srts_dict = sub_clipper.extract_clips(prompt=prompt)
+    llm_srts_dict = sub_clipper.extract_clips(
+        prompt=prompt, llm_client=initialize_llm_client()
+    )
 
     clips_path = Path('.')
     BaseClipper.store_clips(llm_srts_dict, clips_path)

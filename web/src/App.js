@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Divider, Layout, message, Tabs, Upload } from 'antd';
+import { Alert, Divider, Layout, message, Tabs, Upload } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { v4 as uuidv4 } from 'uuid';
+import Marquee from 'react-fast-marquee';
 import TextAreaAfterLLM from './components/TextAreaAfterLLM';
 import TextAreaBeforeLLM from './components/TextAreaBeforeLLM';
 import VideoTabs from './components/VideoTabs';
@@ -194,7 +195,7 @@ const App = () => {
       if (response.ok) {
         const result = await response.json();
         if (result.vision_with_srt_json && result.vision_with_srt_json.length > 0) {
-          setVideoClips3(result.vision_with_srt_json.map(item => ({
+          setVideoClips4(result.vision_with_srt_json.map(item => ({
             ...item,
             url: item.file_path,
             tags: item.tags || [],
@@ -228,7 +229,15 @@ const App = () => {
         </Dragger>
         <Divider />
         <Tabs type="card" defaultActiveKey="2">
-          <TabPane tab="Merge after LLM pick" key="1">
+          <TabPane tab="LLM picks audio and vision separately" key="1">
+            <Alert
+              banner
+              message={
+                <Marquee pauseOnHover gradient={false}>
+                  Subtitle Clipper 和 LLM Vision Clipper 分别切片，之后也可以基于两者的中间 JSON 重新合并切片。
+                </Marquee>
+              }
+            />
             <TextAreaAfterLLM
               uniqueID={uniqueID}
               handleFetchTab1={handleFetchTab1}
@@ -241,15 +250,21 @@ const App = () => {
               handleFetchTab3={handleFetchTab3}
             />
           </TabPane>
-          <TabPane tab="Merge before LLM pick" key="2">
+          <TabPane tab="LLM picks from video meta json" key="2">
+            <Alert
+              banner
+              message={
+                <Marquee pauseOnHover gradient={false}>
+                  先使用 Subtitle Clipper 抽取 Subtitle JSON，然后 LLM Vision 拉片时参考 Subtitle JSON，最后将集成了 Subtitle 的采样，发给 LLM 筛选。
+                </Marquee>
+              }
+            />
             <TextAreaBeforeLLM
               uniqueID={uniqueID}
-              handleFetchTab1={handleFetchTab1}
-              handleFetchTab2={handleFetchTab2}
+              handleFetchTab4={handleFetchTab4}
             />
             <VideoTabBeforeLLM
               videoClips4={videoClips4}
-              handleFetchTab4={handleFetchTab4}
             />
           </TabPane>
         </Tabs>

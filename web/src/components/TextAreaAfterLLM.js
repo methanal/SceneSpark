@@ -37,7 +37,7 @@ const TextAreaAfterLLM = ({ uniqueID, handleFetchTab1, handleFetchTab2 }) => {
 
   return (
     <>
-      <Row gutter={16} style={{ marginBottom: '16px' }}>
+      <Row gutter={16} style={{ marginTop: '16px', marginBottom: '16px' }}>
         <Col span={12}>
           <Card size="small" title="Subtitle Prompt">
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>

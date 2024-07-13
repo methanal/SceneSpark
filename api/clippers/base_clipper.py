@@ -1,7 +1,6 @@
 import pickle
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, List
 
 from moviepy import editor
 
@@ -19,7 +18,7 @@ class IClipper(ABC):
         pass
 
     @abstractmethod
-    def extract_clips(self, prompt: str) -> Dict:
+    def extract_clips(self, prompt: str, llm_client) -> dict:
         """
         Extract clips from the video and return a list of JSON objects.
 
@@ -29,7 +28,7 @@ class IClipper(ABC):
 
         Returns:
         --------
-        List[Dict]
+        list[dict]
             A list of dictionaries with start and end times and JSON descriptions.
         """
         raise NotImplementedError(
@@ -41,11 +40,11 @@ class BaseClipper(IClipper):
     def __init__(self):
         super().__init__()
 
-    def extract_clips(self, prompt: str) -> Dict:
+    def extract_clips(self, prompt: str, llm_client) -> dict:
         raise NotImplementedError("BaseClipper.extract_clips not implementted")
 
     @staticmethod
-    def store_clips(videos_segments: Dict[Path, list], clips_path: Path) -> None:
+    def store_clips(videos_segments: dict[Path, list], clips_path: Path) -> None:
         for source, segments in videos_segments.items():
 
             media = editor.VideoFileClip(source.as_posix())
@@ -73,13 +72,13 @@ class BaseClipper(IClipper):
             media.close()
 
     @staticmethod
-    def pickle_segments_json(obj: Dict, clips_path: Path, name: str) -> None:
+    def pickle_segments_json(obj: dict, clips_path: Path, name: str) -> None:
         p = clips_path / f'{name}.pkl'
         with open(p, 'wb') as f:
             pickle.dump(obj, f)
 
     @staticmethod
-    def flatten_clips_result(videos_segments: Dict) -> List:
+    def flatten_clips_result(videos_segments: dict) -> list:
         """
         Inputs:
         {
@@ -113,7 +112,7 @@ class BaseClipper(IClipper):
         return flatten_list
 
     @staticmethod
-    def merge_clips_dict(dict1, dict2) -> Dict:
+    def merge_clips_dict(dict1, dict2) -> dict:
         def _is_overlapping(start1, end1, start2, end2):
             return max(start1, start2) < min(end1, end2)
 

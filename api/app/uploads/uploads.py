@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 import aiofiles  # type: ignore[import]
 from loguru import logger
@@ -29,7 +29,7 @@ router = APIRouter()
 )
 async def upload_files(
     background_tasks: BackgroundTasks,
-    files: List[UploadFile] = File(description="source video files."),  # noqa: B008
+    files: list[UploadFile] = File(description="source video files."),  # noqa: B008
     request_id: Optional[str] = Form(None),  # noqa: B008
 ):
     upload_dir = ensure_dir(settings.UPLOAD_BASE_PATH, request_id)

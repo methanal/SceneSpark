@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, Card, Col, Divider, Input, Button, message, Row, Select } from 'antd';
+import { Card, Col, Button, Divider, Input, message, Row, Select } from 'antd';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -35,77 +35,73 @@ const TextAreaAfterLLM = ({ uniqueID, handleFetchTab4 }) => {
 
   return (
     <>
-      <Row gutter={16} style={{ marginBottom: '16px' }}>
+      <Row gutter={16} style={{ marginTop: '16px', marginBottom: '16px' }}>
         <Col span={12}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-            <Card size="small" title="Audeo Settings">
-             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-               <span style={{ marginLeft: '10px', marginRight: '10px' }}>Translation Model</span>
-               <Select
-                 value={translationModel}
-                 onChange={setTranslationModel}
-                 style={{ width: '220px', marginRight: '16px' }}
-               >
-                 <Option value="whisper">whisper</Option>
-                 <Option value="openai" disabled>Whisper API (large-v2)</Option>Option>
-                 <Option value="faster">faster-whisper (CTranslate2)</Option>Option>
-                 <Option value="sense_voice" disabled>SenseVoice</Option>Option>
-               </Select>
-               <Divider type="vertical"/>
-               <span style={{ marginRight: '10px' }}>Model Size</span>
-               <Select
-                 value={modelSize}
-                 onChange={setModelSize}
-                 style={{ width: '100px', marginRight: '8px' }}
-                 disabled={modelSizeOptions.length === 0}
-               >
-                 {modelSizeOptions.length > 0 ? (
-                   modelSizeOptions.map(size => (
-                     <Option key={size} value={size}>
-                       {size}
-                     </Option>
-                   ))
-                 ) : (
-                   <Option value="" disabled>
-                     No options
+          <Card size="small" title="Audeo Settings">
+           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+             <span style={{ marginLeft: '10px', marginRight: '10px' }}>Translation Model</span>
+             <Select
+               value={translationModel}
+               onChange={setTranslationModel}
+               style={{ width: '220px', marginRight: '16px' }}
+             >
+               <Option value="whisper">whisper</Option>
+               <Option value="openai" disabled>Whisper API (large-v2)</Option>Option>
+               <Option value="faster">faster-whisper (CTranslate2)</Option>Option>
+               <Option value="sense_voice" disabled>SenseVoice</Option>Option>
+             </Select>
+             <Divider type="vertical"/>
+             <span style={{ marginRight: '10px' }}>Model Size</span>
+             <Select
+               value={modelSize}
+               onChange={setModelSize}
+               style={{ width: '100px', marginRight: '8px' }}
+               disabled={modelSizeOptions.length === 0}
+             >
+               {modelSizeOptions.length > 0 ? (
+                 modelSizeOptions.map(size => (
+                   <Option key={size} value={size}>
+                     {size}
                    </Option>
-                 )}
-               </Select>
-             </div>
-             <TextArea
-               value={whisper_prompt}
-               onChange={(e) => setText_prompt(e.target.value)}
-               placeholder="Input Whisper Prompt here..."
-               autoSize={{ minRows: 4, maxRows: 10 }}
-               style={{ width: '100%' }}
-             />
-            </Card>
-          </div>
+                 ))
+               ) : (
+                 <Option value="" disabled>
+                   No options
+                 </Option>
+               )}
+             </Select>
+           </div>
+           <TextArea
+             value={whisper_prompt}
+             onChange={(e) => setText_prompt(e.target.value)}
+             placeholder="Input Whisper Prompt here..."
+             autoSize={{ minRows: 4, maxRows: 10 }}
+             style={{ width: '100%' }}
+           />
+          </Card>
         </Col>
         <Col span={12}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-            <Card size="small" title="Video Settings">
-              <span style={{ marginLeft: '10px', marginRight: '8px' }}>Sample Interval</span>
-              <Input
-                type="number"
-                value={samplingInterval}
-                onChange={(e) => setSamplingInterval(Number(e.target.value))}
-                placeholder="Enter sampling interval"
-                style={{ width: '60px', marginRight: '8px' }}
-              />
-              <span style={{ marginRight: '8px' }}>seconds</span>
-              <Divider type="vertical"/>
-              <span style={{ marginRight: '8px' }}>Clip Duration</span>
-              <Input
-                type="number"
-                value={clipDuration}
-                onChange={(e) => setClipDuration(Number(e.target.value))}
-                placeholder="Enter clip duration"
-                style={{ width: '60px', marginRight: '8px' }}
-              />
-              <span>seconds</span>
-            </Card>
-          </div>
+          <Card size="small" title="Video Settings">
+            <span style={{ marginLeft: '10px', marginRight: '8px' }}>Sample Interval</span>
+            <Input
+              type="number"
+              value={samplingInterval}
+              onChange={(e) => setSamplingInterval(Number(e.target.value))}
+              placeholder="Enter sampling interval"
+              style={{ width: '60px', marginRight: '8px' }}
+            />
+            <span style={{ marginRight: '8px' }}>seconds</span>
+            <Divider type="vertical"/>
+            <span style={{ marginRight: '8px' }}>Clip Duration</span>
+            <Input
+              type="number"
+              value={clipDuration}
+              onChange={(e) => setClipDuration(Number(e.target.value))}
+              placeholder="Enter clip duration"
+              style={{ width: '60px', marginRight: '8px' }}
+            />
+            <span>seconds</span>
+          </Card>
         </Col>
       </Row>
       <TextArea

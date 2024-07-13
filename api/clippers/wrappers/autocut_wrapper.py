@@ -7,7 +7,7 @@ to improve modularity and maintainability.
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 from moviepy import editor
 
@@ -58,7 +58,7 @@ def concate_clips(args, path: Path, subs, result_filename: Optional[Path] = None
     Reduced duration from 30.0 to 10.0
     Saved media to input_video_cut.mp4
     """
-    segments: List[Dict] = []
+    segments: list[dict] = []
 
     subs.sort(key=lambda x: x.start)
     for x in subs:
