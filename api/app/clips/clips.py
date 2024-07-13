@@ -23,8 +23,10 @@ from app.clips.schemas import (
 # isort: on
 from app.libs.config import settings
 from clippers.base_clipper import BaseClipper
-from clippers.llm_vision_clipper import LLMVisionClipper
+from clippers.frame_sampler import subtitle_framer
+from clippers.llm_vision_clipper import FrameSampler, LLMVisionClipper
 from clippers.subtitle_clipper import SubtitleClipper
+from clippers.wrappers.llm_wrapper import initialize_llm_client
 from utils.tools import ensure_dir, load_pickle
 
 router = APIRouter()
@@ -44,7 +46,7 @@ async def load_llm_srts(request: SubtitleClipperRequest):
     )
     upload_path = ensure_dir(settings.UPLOAD_BASE_PATH, request.request_id)
     srt_clipper = SubtitleClipper(autocut_args=args, upload_path=upload_path)
-    llm_srts_dict = srt_clipper.extract_clips(prompt=request.prompt)
+    llm_srts_dict = srt_clipper.extract_clips(request.prompt, initialize_llm_client())
 
     if not llm_srts_dict:
         raise HTTPException(status_code=404, detail="No clips found")
@@ -68,7 +70,11 @@ async def load_imgs_info(request: LLMVisionClipperRequest):
     llmv_clipper = LLMVisionClipper(
         upload_path, request.sample_interval, request.clip_duration
     )
-    imgs_info_dict = llmv_clipper.extract_clips(prompt=request.prompt)
+    imgs_info_dict = llmv_clipper.extract_clips(
+        prompt=request.prompt,
+        llm_client=initialize_llm_client(),
+        sampler=FrameSampler.TIME_BASE,
+    )
 
     if not imgs_info_dict:
         raise HTTPException(status_code=404, detail="No clips found")
@@ -117,25 +123,46 @@ async def load_merge_json(request: MergeJsonRequest):
 async def load_vision_with_srt(request: VisionWithSrtClipperRequest):
     logger.info(f"vision_with_srt json request: {request.json()}")  # noqa: G004
 
-    # args = SubtitleClipper.gen_args(
-    #     audio_prompt=request.whisper_prompt,
-    #     whisper_mode=request.translation_model,
-    #     whisper_model=request.model_size,
-    # )
-    # upload_path = ensure_dir(settings.UPLOAD_BASE_PATH, request.request_id)
+    args = SubtitleClipper.gen_args(
+        audio_prompt=request.whisper_prompt,
+        whisper_mode=request.translation_model,
+        whisper_model=request.model_size,
+    )
+    upload_path = ensure_dir(settings.UPLOAD_BASE_PATH, request.request_id)
+    srt_clipper = SubtitleClipper(autocut_args=args, upload_path=upload_path)
 
-    # vision_with_srt_dict = []  # FIXME
-    # if not vision_with_srt_dict:
-    #     raise HTTPException(status_code=404, detail="No clips found")
+    llmv_clipper = LLMVisionClipper(
+        upload_path, request.sample_interval, request.clip_duration
+    )
+    vision_with_srt_dict: dict[Path, list] = {}
 
-    # clips_path = ensure_dir(settings.CLIPS_BASE_PATH, request.request_id)
-    # BaseClipper.store_clips(vision_with_srt_dict, clips_path)
-    # BaseClipper.pickle_segments_json(
-    #     vision_with_srt_dict, clips_path, 'vision_with_srt_dict'
-    # )
-    # vision_with_srt_json = BaseClipper.flatten_clips_result(vision_with_srt_dict)
+    for video_file, subs, _ in srt_clipper.extract_subtitle():
+        encode_frames, time_frames = subtitle_framer(
+            video_file=video_file,
+            sample_interval=request.sample_interval,
+            clip_duration=request.clip_duration,
+            subtitles=subs,
+        )
+        if imgs_info := llmv_clipper.extract_single_video_clips(
+            llm_client=initialize_llm_client(),
+            prompt=request.prompt,
+            encode_frames=encode_frames,
+            time_frames=time_frames,
+        ):
+            vision_with_srt_dict[video_file] = imgs_info
+        else:
+            vision_with_srt_dict[video_file] = []
 
-    vision_with_srt_json: list = []
+    if not vision_with_srt_dict:
+        raise HTTPException(status_code=404, detail="No clips found")
+
+    clips_path = ensure_dir(settings.CLIPS_BASE_PATH, request.request_id)
+    BaseClipper.store_clips(vision_with_srt_dict, clips_path)
+    BaseClipper.pickle_segments_json(
+        vision_with_srt_dict, clips_path, 'vision_with_srt_dict'
+    )
+    vision_with_srt_json = BaseClipper.flatten_clips_result(vision_with_srt_dict)
+
     return {"vision_with_srt_json": vision_with_srt_json}
 
 

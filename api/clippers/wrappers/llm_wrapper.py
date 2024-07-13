@@ -3,7 +3,7 @@
 import sys
 from pathlib import Path
 from pprint import pprint
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 import orjson
 from loguru import logger
@@ -32,16 +32,25 @@ def llm_pick_srts(llm_client, srts, prompt):
 def llm_pick_imgs(
     llm_client,
     prompt: str = '',
-    image_list: Optional[List[str]] = None,
-    data_list: List = None,
+    image_list: Optional[list[str]] = None,
+    frames: dict = None,
+    time_frames: list = None,
+    data_list: list = None,
 ):
-    content: List[Dict[str, Union[str, Dict]]] = [{"type": "text", "text": prompt}]
+    content: list[dict[str, Union[str, dict]]] = [{"type": "text", "text": prompt}]
 
     if image_list:
         content.extend({"type": "image", "path": img} for img in image_list)
 
-    if data_list:
-        content.extend({"type": "image", "data": data} for data in data_list)
+    if frames:
+        for encode_frame, time_frame in zip(
+            frames['encode_frames'], frames['time_frames']
+        ):
+            if encode_frame:
+                if srt := time_frame.get('srt'):
+                    content.append({"type": "text", "text": srt})
+
+                content.append({"type": "image", "data": encode_frame})
 
     messages = [{"role": "user", "content": content}]
     response = llm_client.chat(messages)

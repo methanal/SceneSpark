@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings
@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     def CLIPS_BASE_PATH(self) -> Path:
         return Path(self.VIDEOS_BASE_PATH) / 'clips'
 
-    def get_llm_provider_config(self, provider: str) -> Dict[str, Union[str, float]]:
+    def get_llm_provider_config(self, provider: str) -> dict[str, Union[str, float]]:
         if provider == 'openai':
             return {
                 'type': 'remote',

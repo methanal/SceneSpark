@@ -5,7 +5,7 @@ import VideoClipList from './VideoClipList';
 
 const { TabPane } = Tabs;
 
-const VideoTabBeforeLLM = ({ videoClips4, handleFetchTab4 }) => {
+const VideoTabBeforeLLM = ({ videoClips4 }) => {
   const [selectedClip4, setSelectedClip4] = useState(null);
 
   const handleClipClick4 = (clip) => {
