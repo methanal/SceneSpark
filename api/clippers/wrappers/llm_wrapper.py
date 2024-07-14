@@ -56,7 +56,7 @@ def llm_pick_imgs(
     response = llm_client.chat(messages)
 
     if response.stop_reason == 'error':
-        logger.warning(response.response)
+        logger.warning(response)
         return {'picked': []}
 
     usage = orjson.loads(response.original_result)['usage']
