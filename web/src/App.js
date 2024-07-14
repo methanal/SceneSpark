@@ -214,7 +214,7 @@ const App = () => {
 
   return (
     <Layout>
-      <Header>
+      <Header style={{ height: '40px', lineHeight: '40px', padding: '0 20px' }}>
       </Header>
       <Content style={{ padding: '20px' }}>
         <Dragger {...props}>

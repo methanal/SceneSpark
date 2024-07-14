@@ -20,3 +20,5 @@ models/
 **/*.log
 local_env.sh
 **/.git
+.DS_Store
+.env
