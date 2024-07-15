@@ -18,4 +18,4 @@ max-line-length = 120
 ignore = ['E203', 'W503', 'B006']
 
 [tool.flake8.per-file-ignores]
-"api/clippers/prompt/prompt_text.py" = ["E501"]
+"api/prompt/prompt_text.py" = ["E501"]

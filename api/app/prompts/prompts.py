@@ -6,7 +6,7 @@ from fastapi.responses import ORJSONResponse
 from app.libs.config import settings
 
 # isort: off
-from clippers.prompt.prompt_text import (
+from prompt.prompt_text import (
     PROMPT_PICK_IMG_RETURN_JSON,
     PROMPT_PICK_SUBTITLE_RETURN_JSON,
     PROMPT_WHISPER,
