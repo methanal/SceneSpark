@@ -26,10 +26,11 @@ from clippers.base_clipper import BaseClipper
 from clippers.frame_sampler import subtitle_framer
 from clippers.llm_vision_clipper import FrameSampler, LLMVisionClipper
 from clippers.subtitle_clipper import SubtitleClipper
-from clippers.wrappers.llm_wrapper import initialize_llm_client
+from llm.client_pool import OpenAIClientPool
 from utils.tools import ensure_dir, load_pickle
 
 router = APIRouter()
+client_pool = OpenAIClientPool(api_tokens=settings.OPENAI_API_KEY_LIST)
 
 
 @router.post(
@@ -46,7 +47,7 @@ async def load_llm_srts(request: SubtitleClipperRequest):
     )
     upload_path = ensure_dir(settings.UPLOAD_BASE_PATH, request.request_id)
     srt_clipper = SubtitleClipper(autocut_args=args, upload_path=upload_path)
-    llm_srts_dict = srt_clipper.extract_clips(request.prompt, initialize_llm_client())
+    llm_srts_dict = srt_clipper.extract_clips(request.prompt, client_pool.get_client())
 
     if not llm_srts_dict:
         raise HTTPException(status_code=404, detail="No clips found")
@@ -72,7 +73,7 @@ async def load_imgs_info(request: LLMVisionClipperRequest):
     )
     imgs_info_dict = llmv_clipper.extract_clips(
         prompt=request.prompt,
-        llm_client=initialize_llm_client(),
+        llm_client=client_pool.get_client(),
         sampler=FrameSampler.TIME_BASE,
     )
 
@@ -144,7 +145,7 @@ async def load_vision_with_srt(request: VisionWithSrtClipperRequest):
             subtitles=subs,
         )
         if imgs_info := llmv_clipper.extract_single_video_clips(
-            llm_client=initialize_llm_client(),
+            llm_client=client_pool.get_client(),
             prompt=request.prompt,
             encode_frames=encode_frames,
             time_frames=time_frames,

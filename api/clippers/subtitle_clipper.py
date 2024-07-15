@@ -15,7 +15,7 @@ parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir))
 
 from clippers.base_clipper import BaseClipper  # noqa: E402
-from clippers.wrappers.llm_wrapper import llm_pick_srts  # noqa: E402
+from llm.llm_wrapper import llm_pick_srts  # noqa: E402
 from utils.tools import find_video_files  # noqa: E402
 
 
@@ -118,9 +118,10 @@ class SubtitleClipper(BaseClipper):
 
 if __name__ == "__main__":
     from app.libs.config import settings
-    from clippers.prompt.prompt_text import PROMPT_PICK_SUBTITLE_RETURN_JSON
-    from clippers.wrappers.llm_wrapper import initialize_llm_client
+    from llm.client_pool import OpenAIClientPool
+    from prompt.prompt_text import PROMPT_PICK_SUBTITLE_RETURN_JSON
 
+    client_pool = OpenAIClientPool(api_tokens=settings.OPENAI_API_KEY_LIST)
     # video_name = '2.mp4'
     args = SubtitleClipper.gen_args()
     sub_clipper = SubtitleClipper(args, upload_path=Path('.'))
@@ -129,7 +130,7 @@ if __name__ == "__main__":
         selection_ratio=settings.LLM_SUBTITLE_SELECTION_RATIO
     )
     llm_srts_dict = sub_clipper.extract_clips(
-        prompt=prompt, llm_client=initialize_llm_client()
+        prompt=prompt, llm_client=client_pool.get_client()
     )
 
     clips_path = Path('.')

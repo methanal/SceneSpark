@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     BITRATE: str = '10m'
 
-    OPENAI_API_KEY: str = ''
+    OPENAI_API_KEY_LIST: list = []
     OPENAI_BASE_URL: str = ''
     OPENAI_TEMPERATURE: float = 0.4
 
@@ -46,18 +46,6 @@ class Settings(BaseSettings):
     @property
     def CLIPS_BASE_PATH(self) -> Path:
         return Path(self.VIDEOS_BASE_PATH) / 'clips'
-
-    def get_llm_provider_config(self, provider: str) -> dict[str, Union[str, float]]:
-        if provider == 'openai':
-            return {
-                'type': 'remote',
-                'model': 'gpt-4o',
-                'provider': 'openai',
-                'api_key': self.OPENAI_API_KEY,
-                'temperature': self.OPENAI_TEMPERATURE,
-            }
-        else:
-            raise ValueError(f"Unsupported provider: {provider}")
 
 
 settings = Settings()

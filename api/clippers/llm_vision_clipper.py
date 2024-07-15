@@ -19,7 +19,7 @@ from clippers.frame_sampler import (  # noqa: E402
 )
 
 # isort: on
-from clippers.wrappers.llm_wrapper import llm_pick_imgs  # noqa: E402
+from llm.llm_wrapper import llm_pick_imgs  # noqa: E402
 from utils.tools import find_video_files  # noqa: E402
 
 
@@ -100,9 +100,10 @@ class LLMVisionClipper(BaseClipper):
 
 
 if __name__ == "__main__":
-    from clippers.prompt.prompt_text import PROMPT_PICK_IMG_RETURN_JSON
-    from clippers.wrappers.llm_wrapper import initialize_llm_client
+    from llm.client_pool import OpenAIClientPool
+    from prompt.prompt_text import PROMPT_PICK_IMG_RETURN_JSON
 
+    client_pool = OpenAIClientPool(api_tokens=settings.OPENAI_API_KEY_LIST)
     # video_name = '2.mp4'
     llmv_clipper = LLMVisionClipper(upload_path=Path('.'))
 
@@ -111,7 +112,7 @@ if __name__ == "__main__":
     )
     imgs_info_dict = llmv_clipper.extract_clips(
         prompt=prompt,
-        llm_client=initialize_llm_client(),
+        llm_client=client_pool.get_client(),
         sampler=FrameSampler.TIME_BASE,
     )
 
