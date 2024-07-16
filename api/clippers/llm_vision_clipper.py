@@ -57,14 +57,22 @@ class LLMVisionClipper(BaseClipper):
             logger.warning("llm doesn't return JSON, it returns: %s", str(e))
             return []
 
+        timeframe_imgs_info = []
+        dup_start = set()
         for m in imgs_info:
             logger.debug("m: {m}", m=m)
             tf = time_frames[int(m['index'])]
-            m['time_frame'] = tf
-            m['start'] = tf['start']
-            m['end'] = tf['end']
+            if (start := tf['start']) in dup_start:
+                logger.info("same section: {}, {}", tf, m)
+                continue
 
-        return imgs_info
+            dup_start.add(start)
+            m['time_frame'] = tf
+            m['start'] = start
+            m['end'] = tf['end']
+            timeframe_imgs_info.append(m)
+
+        return timeframe_imgs_info
 
     def extract_clips(
         self,
