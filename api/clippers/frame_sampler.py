@@ -1,3 +1,5 @@
+import os
+import pickle
 from enum import Enum, auto
 from pathlib import Path
 from typing import Optional, Union
@@ -76,6 +78,10 @@ def subtitle_framer(
     save_image: bool = True,
 ) -> tuple[list[Optional[bytes]], list[dict[str, Union[float, str]]]]:
     time_frames = get_time_frames(sample_interval, clip_duration, subtitles)
+    if save_image:
+        p = 'time_frames.pkl'
+        with open(p, 'wb') as f:
+            pickle.dump(time_frames, f)
 
     video = cv2.VideoCapture(video_file)
     fps = video.get(cv2.CAP_PROP_FPS)
@@ -101,6 +107,10 @@ def subtitle_framer(
             _img_path = video_file.parent / f'{time_point}.jpg'
             with open(_img_path, "wb") as f:
                 f.write(_buffer.tobytes())
+
+                # For debugging purposes, flush the buffer and write to disk immediately
+                f.flush()
+                os.fsync(f.fileno())
 
     return encoded_frames, time_frames
 
@@ -155,7 +165,7 @@ def get_time_frames(
                     'time_point': time_point,
                     'start': time_point - offset,
                     'end': time_point + offset,
-                    'srt': _srt,
+                    'srt': None,
                 }
             )
             silence_start = time_point

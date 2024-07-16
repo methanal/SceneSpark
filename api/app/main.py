@@ -1,5 +1,3 @@
-import os
-
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,8 +14,6 @@ from app.libs.config import settings
 from app.prompts import prompts
 from app.uploads import uploads
 from utils.sentry import sentry_sdk  # noqa: F401
-
-os.environ['OPENAI_API_KEY'] = settings.OPENAI_API_KEY
 
 description = """
 # SceneSpark
