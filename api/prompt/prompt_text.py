@@ -218,3 +218,5 @@ PROMPT_PICK_VIDEO_META_ALL_STEP1_RETURN_JSON = """我将提供很多截图和字
   ]
 }}
 """
+
+PROMPT_VIDEO_META = """pending"""

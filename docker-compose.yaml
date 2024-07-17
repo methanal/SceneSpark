@@ -19,6 +19,7 @@ services:
   nginx:
     image: nginx:latest
     platform: linux/amd64
+    restart: always
     volumes:
       - ./nginx/scenespark.conf:/etc/nginx/conf.d/default.conf
       # - ./nginx/default.conf:/etc/nginx/conf.d/default.conf

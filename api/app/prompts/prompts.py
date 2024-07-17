@@ -13,6 +13,7 @@ from prompt.prompt_text import (
     PROMPT_PICK_VIDEO_META_RETURN_JSON,
     # PROMPT_PICK_VIDEO_META_ALL_RETURN_JSON,
     # PROMPT_PICK_VIDEO_META_ALL_STEP1_RETURN_JSON,
+    PROMPT_VIDEO_META,
 )
 
 # isort: on
@@ -35,9 +36,11 @@ async def prompts(request_id: str):
     vision_with_srt_prompt = PROMPT_PICK_VIDEO_META_RETURN_JSON
     # vision_with_srt_prompt = PROMPT_PICK_VIDEO_META_ALL_RETURN_JSON
     # vision_with_srt_prompt = PROMPT_PICK_VIDEO_META_ALL_STEP1_RETURN_JSON
+    video_meta_prompt = PROMPT_VIDEO_META  # FIXME, not text yet
     return {
         'subtitle_prompt': subtitle_prompt,
         "vision_prompt": vision_prompt,
         "whisper_prompt": whisper_prompt,
         "vision_with_srt_prompt": vision_with_srt_prompt,
+        "video_meta_prompt": video_meta_prompt,
     }

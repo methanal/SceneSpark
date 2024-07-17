@@ -28,3 +28,7 @@ class VisionWithSrtClipperRequest(BaseModel):
     clip_duration: float
     whisper_prompt: str
     prompt: str
+
+
+class VideoMetaClipperRequest(VisionWithSrtClipperRequest):
+    pass

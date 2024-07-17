@@ -18,6 +18,7 @@ from app.clips.schemas import (
     MergeJsonRequest,
     SubtitleClipperRequest,
     VisionWithSrtClipperRequest,
+    VideoMetaClipperRequest,
 )
 
 # isort: on
@@ -165,6 +166,17 @@ async def load_vision_with_srt(request: VisionWithSrtClipperRequest):
     vision_with_srt_json = BaseClipper.flatten_clips_result(vision_with_srt_dict)
 
     return {"vision_with_srt_json": vision_with_srt_json}
+
+
+@router.post(
+    "/api/v1/clips/extract/video_meta",
+    response_class=ORJSONResponse,
+)
+async def load_video_meta(request: VideoMetaClipperRequest):
+    logger.info(f"vision_with_srt json request: {request.json()}")  # noqa: G004
+
+    video_meta_json: list = []
+    return {"video_meta_json": video_meta_json}
 
 
 @router.get("/api/v1/clips/download/{file_name}")
