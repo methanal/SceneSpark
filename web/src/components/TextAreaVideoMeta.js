@@ -6,6 +6,8 @@ const { Option } = Select;
 
 const TextAreaVideoMeta = ({ uniqueID, handleFetchTab5 }) => {
   const [text4, setText4] = useState('');
+  const [text5, setText5] = useState('');
+  const [text6, setText6] = useState('');
   const [translationModel, setTranslationModel] = useState('whisper');
   const [modelSize, setModelSize] = useState('small');
   const [samplingInterval, setSamplingInterval] = useState(2);
@@ -17,7 +19,9 @@ const TextAreaVideoMeta = ({ uniqueID, handleFetchTab5 }) => {
       const response = await fetch(`/api/v1/prompts/${uniqueID}`);
       if (response.ok) {
         const result = await response.json();
-        setText4(result.video_meta_prompt || '');
+        setText4(result.img_meta_desc_subs || '');
+        setText5(result.img_meta_tag_score || '');
+        setText6(result.video_meta_prompt || '');
       } else {
         message.error('Failed to fetch prompts');
       }
@@ -95,14 +99,46 @@ const TextAreaVideoMeta = ({ uniqueID, handleFetchTab5 }) => {
           </Card>
         </Col>
       </Row>
-      <TextArea
-        value={text4}
-        onChange={(e) => setText4(e.target.value)}
-        placeholder="Input Prompt here..."
-        autoSize={{ minRows: 10, maxRows: 14 }}
-        style={{ width: '100%' }}
-      />
-      <Button onClick={() => handleFetchTab5(translationModel, modelSize, samplingInterval, clipDuration, text4)} style={{ marginTop: '16px' }}>Extract Clips</Button>
+      <Row gutter={16} style={{ marginTop: '16px', marginBottom: '16px' }}>
+        <Col span={24}>
+          <Card size="small" title="Step1, Extract description & subtitle from Video Frames">
+            <TextArea
+              value={text4}
+              onChange={(e) => setText4(e.target.value)}
+              placeholder="Input Prompt here..."
+              autoSize={{ minRows: 10, maxRows: 14 }}
+              style={{ width: '100%' }}
+            />
+          </Card>
+        </Col>
+      </Row>
+      <Row gutter={16} style={{ marginTop: '16px', marginBottom: '16px' }}>
+        <Col span={24}>
+          <Card size="small" title="Step2, Extract tags & score from Video Frames">
+            <TextArea
+              value={text5}
+              onChange={(e) => setText5(e.target.value)}
+              placeholder="Input Prompt here..."
+              autoSize={{ minRows: 10, maxRows: 14 }}
+              style={{ width: '100%' }}
+            />
+          </Card>
+        </Col>
+      </Row>
+      <Row gutter={16} style={{ marginTop: '16px', marginBottom: '16px' }}>
+        <Col span={24}>
+          <Card size="small" title="Step3, Pick clips from Video Meta">
+            <TextArea
+              value={text6}
+              onChange={(e) => setText6(e.target.value)}
+              placeholder="Input Prompt here..."
+              autoSize={{ minRows: 10, maxRows: 14 }}
+              style={{ width: '100%' }}
+            />
+          </Card>
+        </Col>
+      </Row>
+      <Button onClick={() => handleFetchTab5(translationModel, modelSize, samplingInterval, clipDuration, text4, text5, text6)} style={{ marginTop: '16px' }}>Extract Clips</Button>
     </>
   );
 };

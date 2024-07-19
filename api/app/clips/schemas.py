@@ -36,4 +36,6 @@ class VideoMetaClipperRequest(BaseModel):
     model_size: str
     sample_interval: float
     clip_duration: float
-    prompt: str
+    prompt_frame_desc_subs: str
+    prompt_frame_tag_score: str
+    prompt_video_meta: str

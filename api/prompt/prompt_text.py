@@ -143,7 +143,6 @@ PROMPT_PICK_VIDEO_META_RETURN_JSON = """我将提供很多短剧的截图和字�
 }}
 """
 
-PROMPT_VIDEO_META = """pending"""
 PROMPT_IMAGE_META_DESCRIPTION_SUBTITLE = """我将提供很多张短剧的截图，这些截图来自同一视频文件。
 
 你需要根据这些截图，做如下事情：

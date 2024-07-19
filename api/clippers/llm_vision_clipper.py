@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-from time import sleep
 from typing import Optional
 
 import orjson
@@ -23,11 +22,6 @@ from llm.llm_wrapper import (  # noqa: E402
     llm_extract_imgs_info,
     llm_pick_imgs,
     llm_pick_textlist,
-)
-from prompt.prompt_text import (  # noqa: E402
-    PROMPT_IMAGE_META_DESCRIPTION_SUBTITLE,
-    PROMPT_IMAGE_META_TAG_SCORE,
-    PROMPT_PICK_VIDEO_META,
 )
 
 # isort: on
@@ -119,11 +113,17 @@ class LLMVisionClipper(BaseClipper):
         )
 
     def extract_imgs_meta(
-        self, llm_client, encode_frames: list, time_frames: list
+        self,
+        llm_client,
+        encode_frames: list,
+        time_frames: list,
+        prompt_frame_desc_subs: str,
+        prompt_frame_tag_score: str,
+        prompt_video_meta: str,
     ) -> list:
         imgs_desc_sub = llm_extract_imgs_info(
             llm_client=client_pool.get_client(),
-            prompt=PROMPT_IMAGE_META_DESCRIPTION_SUBTITLE,
+            prompt=prompt_frame_desc_subs,  # PROMPT_IMAGE_META_DESCRIPTION_SUBTITLE
             encode_frames=encode_frames,
         )
         logger.debug("llm extract imgs_desc_sub, resp:{}", imgs_desc_sub)
@@ -135,13 +135,12 @@ class LLMVisionClipper(BaseClipper):
 
         merged_imgs_desc_sub = _merge_desc_sub_entries(imgs_desc_sub, time_frames)
 
-        logger.warning("Sleeping 60s...")
-        sleep(
-            60
-        )  # FIXME, Due to TPM limits. A rate limiter should be implemented later.
+        # FIXME, Due to TPM limits. A rate limiter should be implemented later.
+        # logger.warning("Sleeping 60s...")
+        # sleep(60)
         imgs_meta = llm_extract_imgs_info(
             llm_client=client_pool.get_client(),
-            prompt=PROMPT_IMAGE_META_TAG_SCORE,
+            prompt=prompt_frame_tag_score,  # PROMPT_IMAGE_META_TAG_SCORE
             encode_frames=encode_frames,
             imgs_meta=merged_imgs_desc_sub,
         )
@@ -150,14 +149,13 @@ class LLMVisionClipper(BaseClipper):
             return []
         BaseClipper.pickle_segments_json(imgs_meta, self.upload_path, 'imgs_meta')
 
-        logger.warning("Sleeping 60s...")
-        sleep(
-            60
-        )  # FIXME, Due to TPM limits. A rate limiter should be implemented later.
+        # FIXME, Due to TPM limits. A rate limiter should be implemented later.
+        # logger.warning("Sleeping 60s...")
+        # sleep(60)
         _imgs_picked = llm_pick_textlist(
             llm_client=client_pool.get_client(),
             textlist=imgs_meta,
-            prompt=PROMPT_PICK_VIDEO_META,
+            prompt=prompt_video_meta,  # PROMPT_PICK_VIDEO_META
         )
         try:
             imgs_picked = orjson.loads(_imgs_picked)

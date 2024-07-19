@@ -215,7 +215,7 @@ const App = () => {
     }
   };
 
-  const handleFetchTab5 = async (translationModel, modelSize, samplingInterval, clipDuration, prompt) => {
+  const handleFetchTab5 = async (translationModel, modelSize, samplingInterval, clipDuration, prompt4, prompt5, prompt6) => {
     if (!isFileUploaded) {
       message.error('Please upload a file first.');
       return;
@@ -233,7 +233,9 @@ const App = () => {
           model_size: modelSize,
           sample_interval: samplingInterval,
           clip_duration: clipDuration,
-          prompt
+          prompt_frame_desc_subs: prompt4,
+          prompt_frame_tag_score: prompt5,
+          prompt_video_meta: prompt6,
         }),
       });
 

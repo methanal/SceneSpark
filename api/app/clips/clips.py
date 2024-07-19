@@ -196,7 +196,12 @@ async def load_video_meta(request: VideoMetaClipperRequest):
             subtitles=subs,
         )
         if imgs_picked := llmv_clipper.extract_imgs_meta(
-            client_pool.get_client(), encode_frames, time_frames
+            client_pool.get_client(),
+            encode_frames,
+            time_frames,
+            request.prompt_frame_desc_subs,
+            request.prompt_frame_tag_score,
+            request.prompt_video_meta,
         ):
             for img in imgs_picked:
                 img['start'] = subs_time_to_seconds(img['start'])
