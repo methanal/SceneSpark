@@ -1,6 +1,7 @@
 import pickle
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Union
 
 from moviepy import editor
 
@@ -72,8 +73,8 @@ class BaseClipper(IClipper):
             media.close()
 
     @staticmethod
-    def pickle_segments_json(obj: dict, clips_path: Path, name: str) -> None:
-        p = clips_path / f'{name}.pkl'
+    def pickle_segments_json(obj: Union[list, dict], path: Path, name: str) -> None:
+        p = path / f'{name}.pkl'
         with open(p, 'wb') as f:
             pickle.dump(obj, f)
 

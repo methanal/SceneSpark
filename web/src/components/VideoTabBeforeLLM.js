@@ -5,30 +5,30 @@ import VideoClipList from './VideoClipList';
 
 const { TabPane } = Tabs;
 
-const VideoTab = ({ videoClips1 }) => {
-  const [selectedClip1, setSelectedClip1] = useState(null);
+const VideoTabBeforeLLM = ({ videoClips4 }) => {
+  const [selectedClip4, setSelectedClip4] = useState(null);
 
-  const handleClipClick1 = (clip) => {
-    setSelectedClip1(clip);
+  const handleClipClick4 = (clip) => {
+    setSelectedClip4(clip);
   };
 
   return (
   <>
     <Tabs defaultActiveKey="1">
       <TabPane tab="Clips" key="1">
-        <VideoClipList videoClips={videoClips1} onClipClick={handleClipClick1} />
-        {selectedClip1 && (
+        <VideoClipList videoClips={videoClips4} onClipClick={handleClipClick4} />
+        {selectedClip4 && (
           <div style={{ marginTop: '20px' }}>
-            <ReactPlayer url={selectedClip1.url} controls />
+            <ReactPlayer url={selectedClip4.url} controls />
             <Descriptions title="Video Clip Details" bordered>
-              <Descriptions.Item label="Description">{selectedClip1.description}</Descriptions.Item>
+              <Descriptions.Item label="Description">{selectedClip4.description}</Descriptions.Item>
               <Descriptions.Item label="Tags">
-                {selectedClip1.tags.map(tag => (
+                {selectedClip4.tags.map(tag => (
                   <Tag key={tag}>{tag}</Tag>
                 ))}
               </Descriptions.Item>
               <Descriptions.Item label="JSON">
-                <pre>{JSON.stringify(selectedClip1, null, 2)}</pre>
+                <pre>{JSON.stringify(selectedClip4, null, 2)}</pre>
               </Descriptions.Item>
             </Descriptions>
           </div>
@@ -39,4 +39,4 @@ const VideoTab = ({ videoClips1 }) => {
   );
 };
 
-export default VideoTab;
+export default VideoTabBeforeLLM;

@@ -39,8 +39,9 @@ def time_framer(
             break
 
         if frame_count % interval_frames == 0:
+            resized_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
             ret, _buffer = cv2.imencode(
-                '.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 45]
+                '.jpg', resized_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 20]
             )
             if not ret:
                 continue
@@ -96,7 +97,10 @@ def subtitle_framer(
             encoded_frames.append(None)
             continue
 
-        ret, _buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 45])
+        resized_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+        ret, _buffer = cv2.imencode(
+            '.jpg', resized_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 20]
+        )
         if not ret:
             encoded_frames.append(None)
             continue

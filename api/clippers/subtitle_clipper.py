@@ -15,7 +15,7 @@ parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir))
 
 from clippers.base_clipper import BaseClipper  # noqa: E402
-from llm.llm_wrapper import llm_pick_srts  # noqa: E402
+from llm.llm_wrapper import llm_pick_textlist  # noqa: E402
 from utils.tools import find_video_files  # noqa: E402
 
 
@@ -28,7 +28,7 @@ class SubtitleClipper(BaseClipper):
     def extract_clips(self, prompt: str, llm_client) -> dict[Path, list]:
         llm_srts_dict: dict[Path, list] = {}
         for video_file, subs, srts in self.extract_subtitle():
-            _srts_json = llm_pick_srts(llm_client, srts, prompt)
+            _srts_json = llm_pick_textlist(llm_client, srts, prompt)
             try:
                 llm_srts = orjson.loads(_srts_json)
                 llm_srts = llm_srts['picked']

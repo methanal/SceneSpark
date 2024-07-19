@@ -8,9 +8,8 @@ const TextAreaVideoMeta = ({ uniqueID, handleFetchTab5 }) => {
   const [text4, setText4] = useState('');
   const [translationModel, setTranslationModel] = useState('whisper');
   const [modelSize, setModelSize] = useState('small');
-  const [whisper_prompt, setText_prompt] = useState('');
-  const [samplingInterval, setSamplingInterval] = useState(3);
-  const [clipDuration, setClipDuration] = useState(3);
+  const [samplingInterval, setSamplingInterval] = useState(2);
+  const [clipDuration, setClipDuration] = useState(2);
   const modelSizeOptions = translationModel === 'whisper' ? ['small', 'medium'] : [];
 
   const fetchPrompts = async (uniqueID) => {
@@ -19,7 +18,6 @@ const TextAreaVideoMeta = ({ uniqueID, handleFetchTab5 }) => {
       if (response.ok) {
         const result = await response.json();
         setText4(result.video_meta_prompt || '');
-        setText_prompt(result.whisper_prompt || '');
       } else {
         message.error('Failed to fetch prompts');
       }
@@ -71,13 +69,6 @@ const TextAreaVideoMeta = ({ uniqueID, handleFetchTab5 }) => {
                )}
              </Select>
            </div>
-           <TextArea
-             value={whisper_prompt}
-             onChange={(e) => setText_prompt(e.target.value)}
-             placeholder="Input Whisper Prompt here..."
-             autoSize={{ minRows: 4, maxRows: 10 }}
-             style={{ width: '100%' }}
-           />
           </Card>
         </Col>
         <Col span={12}>
@@ -111,7 +102,7 @@ const TextAreaVideoMeta = ({ uniqueID, handleFetchTab5 }) => {
         autoSize={{ minRows: 10, maxRows: 14 }}
         style={{ width: '100%' }}
       />
-      <Button onClick={() => handleFetchTab5(translationModel, modelSize, whisper_prompt, samplingInterval, clipDuration, text4)} style={{ marginTop: '16px' }}>Extract Clips</Button>
+      <Button onClick={() => handleFetchTab5(translationModel, modelSize, samplingInterval, clipDuration, text4)} style={{ marginTop: '16px' }}>Extract Clips</Button>
     </>
   );
 };
