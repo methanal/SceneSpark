@@ -30,5 +30,12 @@ class VisionWithSrtClipperRequest(BaseModel):
     prompt: str
 
 
-class VideoMetaClipperRequest(VisionWithSrtClipperRequest):
-    pass
+class VideoMetaClipperRequest(BaseModel):
+    request_id: str
+    translation_model: str
+    model_size: str
+    sample_interval: float
+    clip_duration: float
+    prompt_frame_desc_subs: str
+    prompt_frame_tag_score: str
+    prompt_video_meta: str

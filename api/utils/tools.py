@@ -62,3 +62,28 @@ def find_video_files(path: Path) -> list:
         video_files.extend(glob.glob(os.path.join(path, f"*.{ext}"), recursive=False))
 
     return sorted([Path(p) for p in video_files])
+
+
+def subs_time_to_seconds(time_str: str) -> float:
+    """
+    Convert a timestamp string(from subtitle) in the format 'H:MM:SS.sss' to seconds.
+
+    Args:
+        time_str (str): The timestamp string to convert.
+
+    Returns:
+        float: The total time in seconds.
+
+    Example:
+        >>> time_str = '0:00:43.290'
+        >>> seconds = time_to_seconds(time_str)
+        >>> print(seconds)
+        43.29
+    """
+    parts = time_str.split(':')
+    hours = int(parts[0])
+    minutes = int(parts[1])
+    seconds = float(parts[2])
+
+    total_seconds = (hours * 60 * 60) + (minutes * 60) + seconds
+    return total_seconds

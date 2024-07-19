@@ -11,9 +11,9 @@ from prompt.prompt_text import (
     PROMPT_PICK_SUBTITLE_RETURN_JSON,
     PROMPT_WHISPER,
     PROMPT_PICK_VIDEO_META_RETURN_JSON,
-    # PROMPT_PICK_VIDEO_META_ALL_RETURN_JSON,
-    # PROMPT_PICK_VIDEO_META_ALL_STEP1_RETURN_JSON,
-    PROMPT_VIDEO_META,
+    PROMPT_IMAGE_META_DESCRIPTION_SUBTITLE,
+    PROMPT_IMAGE_META_TAG_SCORE,
+    PROMPT_PICK_VIDEO_META,
 )
 
 # isort: on
@@ -34,13 +34,15 @@ async def prompts(request_id: str):
     )
     whisper_prompt = PROMPT_WHISPER
     vision_with_srt_prompt = PROMPT_PICK_VIDEO_META_RETURN_JSON
-    # vision_with_srt_prompt = PROMPT_PICK_VIDEO_META_ALL_RETURN_JSON
-    # vision_with_srt_prompt = PROMPT_PICK_VIDEO_META_ALL_STEP1_RETURN_JSON
-    video_meta_prompt = PROMPT_VIDEO_META  # FIXME, not text yet
+    img_meta_desc_subs = PROMPT_IMAGE_META_DESCRIPTION_SUBTITLE
+    img_meta_tag_score = PROMPT_IMAGE_META_TAG_SCORE
+    video_meta_prompt = PROMPT_PICK_VIDEO_META
     return {
         'subtitle_prompt': subtitle_prompt,
         "vision_prompt": vision_prompt,
         "whisper_prompt": whisper_prompt,
         "vision_with_srt_prompt": vision_with_srt_prompt,
+        "img_meta_desc_subs": img_meta_desc_subs,
+        "img_meta_tag_score": img_meta_tag_score,
         "video_meta_prompt": video_meta_prompt,
     }

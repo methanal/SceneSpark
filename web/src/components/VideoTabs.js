@@ -5,7 +5,7 @@ import VideoClipList from './VideoClipList';
 
 const { TabPane } = Tabs;
 
-const VideoTriTabs = ({ videoClips, videoClips2, videoClips3, handleFetchTab3 }) => {
+const VideoTabs = ({ videoClips, videoClips2, videoClips3, handleFetchTab3 }) => {
   const [selectedClip1, setSelectedClip1] = useState(null);
   const [selectedClip2, setSelectedClip2] = useState(null);
   const [selectedClip3, setSelectedClip3] = useState(null);
@@ -101,4 +101,4 @@ const VideoTriTabs = ({ videoClips, videoClips2, videoClips3, handleFetchTab3 })
   );
 };
 
-export default VideoTriTabs;
+export default VideoTabs;

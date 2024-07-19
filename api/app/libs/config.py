@@ -22,6 +22,8 @@ class Settings(BaseSettings):
 
     LLM_SUBTITLE_SELECTION_RATIO: str = "30%"
     LLM_VIDEO_SELECTION_RATIO: str = "30%"
+    LLM_IMG_INFO_BATCH_SIZE: int = 20
+    LLM_MAX_TOKENS_GPT4O: int = 128000  # https://platform.openai.com/docs/models/gpt-4o
 
     SENTRY_DSN: str = ''
     SENTRY_APM_SAMPLE_RATE: Optional[float] = 1
@@ -30,7 +32,7 @@ class Settings(BaseSettings):
 
     OPENAI_API_KEY_LIST: list = []
     OPENAI_BASE_URL: str = ''
-    OPENAI_TEMPERATURE: float = 0.4
+    OPENAI_TEMPERATURE: float = 0.0
 
     @field_validator('VIDEOS_BASE_PATH')
     def validate_path(cls, v):

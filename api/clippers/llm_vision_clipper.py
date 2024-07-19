@@ -17,10 +17,81 @@ from clippers.frame_sampler import (  # noqa: E402
     subtitle_framer,
     time_framer,
 )
+from llm.client_pool import OpenAIClientPool  # noqa: E402
+from llm.llm_wrapper import (  # noqa: E402
+    llm_extract_imgs_info,
+    llm_pick_imgs,
+    llm_pick_textlist,
+)
 
 # isort: on
-from llm.llm_wrapper import llm_pick_imgs  # noqa: E402
 from utils.tools import find_video_files  # noqa: E402
+
+client_pool = OpenAIClientPool(api_tokens=settings.OPENAI_API_KEY_LIST)
+
+
+def _merge_desc_sub_entries(imgs_desc_sub: list, time_frames: list) -> list:
+    merged_data = []
+    current_entry = None
+    first_index = None
+
+    for item in imgs_desc_sub:
+        if current_entry is None:
+            first_index = item['index']
+            current_entry = {
+                "index": f"{first_index}",
+                "description": [item["description"]],  # merge description
+                "frame_subtitle": [item["subtitle"]],  # merge frame_subtitle
+                "start": time_frames[first_index]['start'],
+                "end": time_frames[first_index]['end'],
+                'audio_subtitle': [
+                    time_frames[first_index]['srt']
+                ],  # merge audio_subtitle
+            }
+        elif (
+            item["subtitle"] == current_entry["frame_subtitle"]
+            and item['audio_subtitle'] == current_entry['audio_subtitle']
+        ):
+            # NOTE: Using both frame_subtitle and audio_subtitle extracts more segments
+            current_entry["index"] = f"{first_index}-{item['index']}"
+            current_entry['end'] = time_frames[item['index']]['end']
+            if item["description"] not in current_entry["description"]:
+                current_entry["description"].append(item["description"])
+            if item["subtitle"] not in current_entry["frame_subtitle"]:
+                current_entry["frame_subtitle"].append(item["subtitle"])
+            if item["audio_subtitle"] not in current_entry["audio_subtitle"]:
+                current_entry["audio_subtitle"].append(item["audio_subtitle"])
+        else:
+            current_entry["description"] = ' '.join(current_entry["description"])
+            current_entry["frame_subtitle"] = ' '.join(
+                [x for x in current_entry["frame_subtitle"] if x]
+            )
+            current_entry["audio_subtitle"] = ' '.join(
+                [x for x in current_entry["audio_subtitle"] if x]
+            )
+            merged_data.append(current_entry)
+
+            first_index = item['index']
+            current_entry = {
+                "index": f"{first_index}",
+                "description": [item["description"]],
+                "frame_subtitle": [item["subtitle"]],
+                "start": time_frames[first_index]['start'],
+                "end": time_frames[first_index]['end'],
+                'audio_subtitle': [time_frames[first_index]['srt']],
+            }
+
+    if current_entry is not None:
+        current_entry["description"] = ' '.join(current_entry["description"])
+        current_entry["frame_subtitle"] = ' '.join(
+            [x for x in current_entry["frame_subtitle"] if x]
+        )
+        current_entry["audio_subtitle"] = ' '.join(
+            [x for x in current_entry["audio_subtitle"] if x]
+        )
+        merged_data.append(current_entry)
+
+    return merged_data
 
 
 class LLMVisionClipper(BaseClipper):
@@ -41,6 +112,64 @@ class LLMVisionClipper(BaseClipper):
             clip_duration if clip_duration > 0.0 else settings.LLM_VISION_CLIP_DURATION
         )
 
+    def extract_imgs_meta(
+        self,
+        llm_client,
+        encode_frames: list,
+        time_frames: list,
+        prompt_frame_desc_subs: str,
+        prompt_frame_tag_score: str,
+        prompt_video_meta: str,
+    ) -> list:
+        imgs_desc_sub = llm_extract_imgs_info(
+            llm_client=client_pool.get_client(),
+            prompt=prompt_frame_desc_subs,  # PROMPT_IMAGE_META_DESCRIPTION_SUBTITLE
+            encode_frames=encode_frames,
+        )
+        logger.debug("llm extract imgs_desc_sub, resp:{}", imgs_desc_sub)
+        if not imgs_desc_sub:
+            return []
+        BaseClipper.pickle_segments_json(
+            imgs_desc_sub, self.upload_path, 'imgs_desc_sub'
+        )
+
+        merged_imgs_desc_sub = _merge_desc_sub_entries(imgs_desc_sub, time_frames)
+
+        # FIXME, Due to TPM limits. A rate limiter should be implemented later.
+        # logger.warning("Sleeping 60s...")
+        # sleep(60)
+        imgs_meta = llm_extract_imgs_info(
+            llm_client=client_pool.get_client(),
+            prompt=prompt_frame_tag_score,  # PROMPT_IMAGE_META_TAG_SCORE
+            encode_frames=encode_frames,
+            imgs_meta=merged_imgs_desc_sub,
+        )
+        logger.debug("llm extract imgs_meta, resp:{}", imgs_meta)
+        if not imgs_meta:
+            return []
+        BaseClipper.pickle_segments_json(imgs_meta, self.upload_path, 'imgs_meta')
+
+        # FIXME, Due to TPM limits. A rate limiter should be implemented later.
+        # logger.warning("Sleeping 60s...")
+        # sleep(60)
+        _imgs_picked = llm_pick_textlist(
+            llm_client=client_pool.get_client(),
+            textlist=imgs_meta,
+            prompt=prompt_video_meta,  # PROMPT_PICK_VIDEO_META
+        )
+        try:
+            imgs_picked = orjson.loads(_imgs_picked)
+            imgs_picked = imgs_picked['picked']
+
+            logger.debug("llm extract imgs_picked, resp:{}", imgs_picked)
+            BaseClipper.pickle_segments_json(
+                imgs_picked, self.upload_path, 'imgs_picked'
+            )
+            return imgs_picked
+        except orjson.JSONDecodeError:
+            logger.warning("llm_pick_textlist doesn't return JSON, {}", _imgs_picked)
+            return []
+
     def extract_single_video_clips(
         self, llm_client, prompt: str, encode_frames: list, time_frames: list
     ) -> list:
@@ -53,8 +182,8 @@ class LLMVisionClipper(BaseClipper):
         try:
             imgs_info = orjson.loads(_imgs_json)
             imgs_info = imgs_info['picked']
-        except orjson.JSONDecodeError as e:
-            logger.warning("llm doesn't return JSON, it returns: %s", str(e))
+        except orjson.JSONDecodeError:
+            logger.warning("llm doesn't return JSON, it returns: {}", _imgs_json)
             return []
 
         timeframe_imgs_info = []

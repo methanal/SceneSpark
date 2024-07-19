@@ -6,8 +6,9 @@ import Marquee from 'react-fast-marquee';
 import TextAreaAfterLLM from './components/TextAreaAfterLLM';
 import TextAreaBeforeLLM from './components/TextAreaBeforeLLM';
 import TextAreaVideoMeta from './components/TextAreaVideoMeta';
-import VideoTriTabs from './components/VideoTriTabs';
-import VideoTab from './components/VideoTab';
+import VideoTabs from './components/VideoTabs';
+import VideoTabBeforeLLM from './components/VideoTabBeforeLLM';
+import VideoTabVideoMeta from './components/VideoTabVideoMeta';
 
 const { Content, Footer, Header } = Layout;
 const { TabPane } = Tabs;
@@ -214,7 +215,7 @@ const App = () => {
     }
   };
 
-  const handleFetchTab5 = async (translationModel, modelSize, whisperPrompt, samplingInterval, clipDuration, prompt) => {
+  const handleFetchTab5 = async (translationModel, modelSize, samplingInterval, clipDuration, prompt4, prompt5, prompt6) => {
     if (!isFileUploaded) {
       message.error('Please upload a file first.');
       return;
@@ -230,10 +231,11 @@ const App = () => {
           request_id: uniqueID,
           translation_model: translationModel,
           model_size: modelSize,
-          whisper_prompt: whisperPrompt,
           sample_interval: samplingInterval,
           clip_duration: clipDuration,
-          prompt
+          prompt_frame_desc_subs: prompt4,
+          prompt_frame_tag_score: prompt5,
+          prompt_video_meta: prompt6,
         }),
       });
 
@@ -273,7 +275,7 @@ const App = () => {
           </p>
         </Dragger>
         <Divider />
-        <Tabs type="card" defaultActiveKey="2">
+        <Tabs type="card" defaultActiveKey="3">
           <TabPane tab="LLM picks audio and vision separately" key="1">
             <Alert
               banner
@@ -288,7 +290,7 @@ const App = () => {
               handleFetchTab1={handleFetchTab1}
               handleFetchTab2={handleFetchTab2}
             />
-            <VideoTriTabs
+            <VideoTabs
               videoClips={videoClips}
               videoClips2={videoClips2}
               videoClips3={videoClips3}
@@ -308,11 +310,11 @@ const App = () => {
               uniqueID={uniqueID}
               handleFetchTab4={handleFetchTab4}
             />
-            <VideoTab
+            <VideoTabBeforeLLM
               videoClips4={videoClips4}
             />
           </TabPane>
-          <TabPane tab="LLM picks from Video Meta" key="2">
+          <TabPane tab="LLM picks from Video Meta" key="3">
             <Alert
               banner
               message={
@@ -325,7 +327,7 @@ const App = () => {
               uniqueID={uniqueID}
               handleFetchTab5={handleFetchTab5}
             />
-            <VideoTab
+            <VideoTabVideoMeta
               videoClips5={videoClips5}
             />
           </TabPane>
